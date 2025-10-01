@@ -1,0 +1,83 @@
+<odoo>
+  <data>
+
+    <!-- History List View -->
+    <record id="view_delivery_history_list" model="ir.ui.view">
+      <field name="name">delivery.history.list</field>
+      <field name="model">delivery.history</field>
+      <field name="arch" type="xml">
+        <list string="Delivery History" create="false" edit="false" delete="false">
+          <field name="create_date" string="Date/Time"/>
+          <field name="delivery_order_id"/>
+          <field name="event_type" widget="badge"
+                 decoration-success="event_type in ['completed', 'assigned', 'photo_uploaded']"
+                 decoration-info="event_type in ['created', 'started', 'location_updated']"
+                 decoration-warning="event_type in ['priority_changed', 'zone_changed', 'reassigned']"
+                 decoration-danger="event_type in ['failed', 'cancelled']"/>
+          <field name="user_id"/>
+          <field name="partner_id"/>
+          <field name="description"/>
+          <field name="latitude" optional="hide"/>
+          <field name="longitude" optional="hide"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- History Form View -->
+    <record id="view_delivery_history_form" model="ir.ui.view">
+      <field name="name">delivery.history.form</field>
+      <field name="model">delivery.history</field>
+      <field name="arch" type="xml">
+        <form string="History Entry" create="false" edit="false">
+          <sheet>
+            <group>
+              <group>
+                <field name="delivery_order_id"/>
+                <field name="event_type"/>
+                <field name="create_date"/>
+              </group>
+              <group>
+                <field name="user_id"/>
+                <field name="partner_id"/>
+              </group>
+            </group>
+            
+            <group string="Details">
+              <field name="description" nolabel="1"/>
+            </group>
+
+            <group string="State Transition" invisible="not old_state and not new_state">
+              <group>
+                <field name="old_state"/>
+                <field name="new_state"/>
+              </group>
+            </group>
+
+            <group string="Location" invisible="not latitude and not longitude">
+              <group>
+                <field name="latitude"/>
+                <field name="longitude"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- History Timeline View -->
+    <record id="view_delivery_history_timeline" model="ir.ui.view">
+      <field name="name">delivery.history.timeline</field>
+      <field name="model">delivery.history</field>
+      <field name="arch" type="xml">
+        <list string="Timeline" create="false" edit="false">
+          <field name="create_date"/>
+          <field name="event_type" widget="badge"/>
+          <field name="description"/>
+          <field name="user_id" widget="many2one_avatar_user"/>
+        </list>
+      </field>
+    </record>
+
+  </data>
+</odoo>
+

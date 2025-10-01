@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pos_delivery_order_portal,pos.delivery.order.portal,model_pos_delivery_order,group_delivery_person,1,1,0,0
+access_pos_delivery_order_user,pos.delivery.order.user,model_pos_delivery_order,point_of_sale.group_pos_user,1,1,1,0
+access_pos_delivery_order_manager,pos.delivery.order.manager,model_pos_delivery_order,group_delivery_manager,1,1,1,1
+access_delivery_zone_user,delivery.zone.user,model_delivery_zone,point_of_sale.group_pos_user,1,0,0,0
+access_delivery_zone_manager,delivery.zone.manager,model_delivery_zone,group_delivery_manager,1,1,1,1
+access_delivery_history_portal,delivery.history.portal,model_delivery_history,group_delivery_person,1,1,1,0
+access_delivery_history_user,delivery.history.user,model_delivery_history,point_of_sale.group_pos_user,1,1,1,0
+access_delivery_history_manager,delivery.history.manager,model_delivery_history,group_delivery_manager,1,1,1,1
+access_pos_delivery_config_user,pos.delivery.config.user,model_pos_delivery_config,point_of_sale.group_pos_user,1,0,0,0
+access_pos_delivery_config_manager,pos.delivery.config.manager,model_pos_delivery_config,group_delivery_manager,1,1,1,0
+

@@ -1,0 +1,56 @@
+<odoo>
+  <data noupdate="1">
+
+    <!-- Sequence for Delivery Orders -->
+    <record id="seq_pos_delivery_order" model="ir.sequence">
+      <field name="name">POS Delivery Order</field>
+      <field name="code">pos.delivery.order</field>
+      <field name="prefix">DEL</field>
+      <field name="padding">5</field>
+      <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Sample Delivery Zones -->
+    <record id="delivery_zone_north" model="delivery.zone">
+      <field name="name">North Zone</field>
+      <field name="code">NORTH</field>
+      <field name="delivery_cost">5.00</field>
+      <field name="estimated_time">30</field>
+      <field name="description">Northern area of the city</field>
+    </record>
+
+    <record id="delivery_zone_south" model="delivery.zone">
+      <field name="name">South Zone</field>
+      <field name="code">SOUTH</field>
+      <field name="delivery_cost">5.00</field>
+      <field name="estimated_time">30</field>
+      <field name="description">Southern area of the city</field>
+    </record>
+
+    <record id="delivery_zone_east" model="delivery.zone">
+      <field name="name">East Zone</field>
+      <field name="code">EAST</field>
+      <field name="delivery_cost">6.00</field>
+      <field name="estimated_time">40</field>
+      <field name="description">Eastern area of the city</field>
+    </record>
+
+    <record id="delivery_zone_west" model="delivery.zone">
+      <field name="name">West Zone</field>
+      <field name="code">WEST</field>
+      <field name="delivery_cost">6.00</field>
+      <field name="estimated_time">40</field>
+      <field name="description">Western area of the city</field>
+    </record>
+
+    <record id="delivery_zone_center" model="delivery.zone">
+      <field name="name">Center Zone</field>
+      <field name="code">CENTER</field>
+      <field name="delivery_cost">3.00</field>
+      <field name="estimated_time">20</field>
+      <field name="description">City center - fastest delivery</field>
+    </record>
+
+  </data>
+</odoo>
+

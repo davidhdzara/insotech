@@ -7,7 +7,7 @@ services:
     ports:
       - "8069:8069"
     volumes:
-      - ./pos:/mnt/extra-addons/pos
+      - ./pos_delivery:/mnt/extra-addons/pos_delivery
     environment:
       - HOST=db
       - USER=odoo
