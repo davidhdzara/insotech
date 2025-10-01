@@ -1,0 +1,4 @@
+[submodule "davidhdzara/insotech"]
+	path = davidhdzara/insotech
+	url = git@github.com:davidhdzara/insotech.git
+	branch = main
