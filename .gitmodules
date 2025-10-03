@@ -2,3 +2,8 @@
 	path = davidhdzara/insotech
 	url = git@github.com:davidhdzara/insotech.git
 	branch = main
+
+[submodule "JeffSaa/jorels-fork"]
+	path = JeffSaa/jorels-fork
+	url = git@github.com:JeffSaa/jorels-fork.git
+	branch = master
