@@ -82,4 +82,34 @@ class PosOrder(models.Model):
             address_parts.append(partner.zip)
             
         return ', '.join(address_parts) if address_parts else ''
+    
+    def write(self, vals):
+        """Auto-create delivery when order is ready"""
+        result = super(PosOrder, self).write(vals)
+        
+        # Check if this is a delivery-only POS and state changed to 'done' or 'paid'
+        for order in self:
+            if (order.config_id.is_delivery_only and 
+                order.state in ['done', 'paid'] and 
+                not order.delivery_order_id):
+                
+                # Create delivery order automatically
+                delivery_vals = {
+                    'pos_order_id': order.id,
+                    'partner_id': order.partner_id.id,
+                    'delivery_address': order._get_partner_address() or 'No address provided',
+                    'delivery_phone': order.partner_id.phone or order.partner_id.mobile or '',
+                    'state': 'pending',  # Start as pending, will be assigned later
+                }
+                
+                # Create the delivery order
+                delivery_order = self.env['pos.delivery.order'].create(delivery_vals)
+                order.delivery_order_id = delivery_order.id
+                
+                # Notify
+                order.message_post(
+                    body=_("Delivery order %s created automatically") % delivery_order.name
+                )
+        
+        return result
 

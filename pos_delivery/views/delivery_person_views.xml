@@ -86,14 +86,14 @@
           <field name="completed_deliveries"/>
           <field name="avg_rating"/>
           <field name="vehicle_type"/>
+          <field name="image_128"/>
           
           <templates>
             <t t-name="card">
               <div class="oe_kanban_card">
                 <div class="oe_kanban_content">
                   <div class="o_kanban_image">
-                    <img t-att-src="kanban_image('res.partner', 'image_128', record.id.raw_value)" 
-                         alt="Avatar" class="o_image_64_max"/>
+                    <field name="image_128" widget="image" class="o_image_64_max"/>
                   </div>
                   
                   <div class="oe_kanban_details">
