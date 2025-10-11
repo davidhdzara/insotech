@@ -1,0 +1,55 @@
+<odoo>
+  <data>
+
+    <record id="view_delivery_app_qr_wizard_form" model="ir.ui.view">
+      <field name="name">delivery.app.qr.wizard.form</field>
+      <field name="model">delivery.app.qr.wizard</field>
+      <field name="arch" type="xml">
+        <form string="Configuración App - Código QR">
+          <sheet>
+            <div class="oe_title">
+              <h1>📱 Escanea este código QR con la App</h1>
+            </div>
+
+            <group>
+              <group>
+                <div class="text-center">
+                  <field name="qr_image" widget="image" class="oe_avatar" 
+                         options="{'size': [300, 300]}"/>
+                </div>
+              </group>
+            </group>
+
+            <group>
+              <group string="URL del Servidor">
+                <field name="server_url" readonly="1"/>
+              </group>
+            </group>
+
+            <group>
+              <field name="config_json" widget="ace" 
+                     options="{'mode': 'json'}" readonly="1"/>
+            </group>
+
+            <div class="alert alert-info" role="alert">
+              <h4><i class="fa fa-info-circle"/> Instrucciones</h4>
+              <ol>
+                <li>Abre la app "Delivery App" en tu dispositivo móvil</li>
+                <li>Selecciona "Escanear QR" o "Configurar Servidor"</li>
+                <li>Escanea este código QR con la cámara de tu dispositivo</li>
+                <li>La app se configurará automáticamente</li>
+                <li>Ingresa con tu email y contraseña de usuario portal</li>
+              </ol>
+            </div>
+
+          </sheet>
+          <footer>
+            <button string="Cerrar" class="btn-secondary" special="cancel"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+  </data>
+</odoo>
+

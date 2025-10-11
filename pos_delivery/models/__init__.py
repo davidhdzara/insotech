@@ -7,4 +7,5 @@ from . import delivery_zone
 from . import res_partner
 from . import pos_delivery_config
 from . import delivery_history
+from . import pos_delivery_session
 

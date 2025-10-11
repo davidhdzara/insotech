@@ -66,6 +66,19 @@ class PosDeliveryConfig(models.Model):
     
     company_id = fields.Many2one('res.company', string='Company', 
                                   default=lambda self: self.env.company)
+    
+    server_url = fields.Char(
+        string='Server URL',
+        compute='_compute_server_url',
+        help='URL del servidor Odoo para configurar la app'
+    )
+
+    @api.depends('company_id')
+    def _compute_server_url(self):
+        """Compute server URL from system parameter"""
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        for record in self:
+            record.server_url = base_url
 
     @api.model
     def get_config(self):
@@ -74,4 +87,46 @@ class PosDeliveryConfig(models.Model):
         if not config:
             config = self.create({'name': 'Delivery Settings'})
         return config
+
+    def action_show_qr_code(self):
+        """Show QR code for app configuration"""
+        self.ensure_one()
+        
+        import json
+        import qrcode
+        import base64
+        from io import BytesIO
+        
+        # Create config data
+        config_data = {
+            'server_url': self.server_url,
+            'api_version': '1.0',
+            'configured_at': fields.Datetime.now().isoformat()
+        }
+        
+        # Generate QR code
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(json.dumps(config_data))
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        qr_image = base64.b64encode(buffer.getvalue()).decode()
+        
+        # Create wizard to show QR
+        wizard = self.env['delivery.app.qr.wizard'].create({
+            'qr_image': qr_image,
+            'config_json': json.dumps(config_data, indent=2),
+            'server_url': self.server_url
+        })
+        
+        return {
+            'name': 'Código QR - Configuración App',
+            'type': 'ir.actions.act_window',
+            'res_model': 'delivery.app.qr.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
 

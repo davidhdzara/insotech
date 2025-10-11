@@ -93,6 +93,13 @@ class PosOrder(models.Model):
                 order.state in ['done', 'paid'] and 
                 not order.delivery_order_id):
                 
+                # Skip if no customer is assigned
+                if not order.partner_id:
+                    order.message_post(
+                        body=_("Cannot create delivery order: No customer assigned to this order")
+                    )
+                    continue
+                
                 # Create delivery order automatically
                 delivery_vals = {
                     'pos_order_id': order.id,

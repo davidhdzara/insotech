@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+
+    <!-- App Configuration View (QR Code for delivery persons) -->
+    <record id="view_delivery_app_qr_config" model="ir.ui.view">
+      <field name="name">delivery.app.qr.config</field>
+      <field name="model">pos.delivery.config</field>
+      <field name="arch" type="xml">
+        <form string="Configuración App Domiciliarios">
+          <sheet>
+            <div class="oe_title">
+              <h1>📱 Configuración App Domiciliarios</h1>
+            </div>
+
+            <group>
+              <group>
+                <div class="alert alert-info" role="alert">
+                  <h4><i class="fa fa-info-circle"/> Instrucciones</h4>
+                  <ol>
+                    <li>Descarga la app "Delivery App" en tu dispositivo móvil</li>
+                    <li>Abre la app y selecciona "Escanear QR"</li>
+                    <li>Escanea el código QR que aparece abajo</li>
+                    <li>Ingresa con tu email y contraseña de usuario portal</li>
+                  </ol>
+                </div>
+              </group>
+            </group>
+
+            <group>
+              <group string="URL del Servidor">
+                <field name="server_url" readonly="1" widget="url"/>
+                <button name="action_show_qr_code" 
+                        string="Generar Código QR" 
+                        type="object" 
+                        class="btn-primary"
+                        icon="fa-qrcode"/>
+              </group>
+            </group>
+
+            <div class="alert alert-warning" role="alert">
+              <i class="fa fa-exclamation-triangle"/> 
+              <strong>Importante:</strong> Los domiciliarios deben ser creados como usuarios portal para no consumir licencias de Odoo.
+            </div>
+
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Menu Item for App Configuration -->
+    <record id="menu_delivery_app_config" model="ir.ui.menu">
+      <field name="name">Configuración App</field>
+      <field name="parent_id" ref="menu_pos_delivery_config"/>
+      <field name="action" ref="action_pos_delivery_config"/>
+      <field name="sequence">50</field>
+    </record>
+
+  </data>
+</odoo>
+

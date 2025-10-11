@@ -1,0 +1,53 @@
+<odoo>
+  <data>
+    
+    <!-- Add Delivery Person fields to Contact form -->
+    <record id="view_partner_form_delivery" model="ir.ui.view">
+      <field name="name">res.partner.form.delivery</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        
+        <!-- Add Delivery Person checkbox after name -->
+        <xpath expr="//field[@name='name']" position="after">
+          <field name="is_delivery_person" string="Es Domiciliario" widget="boolean_toggle"/>
+        </xpath>
+        
+        <!-- Add Delivery Information section -->
+        <xpath expr="//notebook" position="inside">
+          <page string="Información de Entrega" invisible="is_delivery_person == False">
+            <group>
+              <group string="Detalles de Entrega">
+                <field name="delivery_person_code" string="Código"/>
+                <field name="vehicle_type" string="Tipo de Vehículo"/>
+                <field name="vehicle_plate" string="Placa"/>
+              </group>
+              
+              <group string="Estadísticas">
+                <field name="total_deliveries" string="Total Entregas" readonly="1"/>
+                <field name="completed_deliveries" string="Completadas" readonly="1"/>
+                <field name="failed_deliveries" string="Fallidas" readonly="1"/>
+                <field name="avg_rating" string="Calificación Prom." readonly="1" widget="float"/>
+                <field name="avg_delivery_time" string="Tiempo Prom. (min)" readonly="1" widget="float_time"/>
+              </group>
+            </group>
+            
+            <group>
+              <div class="alert alert-info" role="alert">
+                <p><strong>💡 Importante:</strong></p>
+                <ul>
+                  <li>Este contacto debe ser un <strong>usuario portal</strong> para no consumir licencias</li>
+                  <li>Ve a <strong>Acción > Conceder acceso al portal</strong> para crear el usuario</li>
+                  <li>Luego establece una contraseña en <strong>Configuración > Usuarios</strong></li>
+                </ul>
+              </div>
+            </group>
+          </page>
+        </xpath>
+        
+      </field>
+    </record>
+
+  </data>
+</odoo>
+
