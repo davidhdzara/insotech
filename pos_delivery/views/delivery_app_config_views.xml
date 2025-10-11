@@ -56,13 +56,6 @@
       <field name="target">current</field>
     </record>
 
-    <!-- Menu Item for App Configuration -->
-    <menuitem id="menu_delivery_app_config"
-              name="Configuración App"
-              parent="menu_pos_delivery_config"
-              action="action_delivery_app_qr_config"
-              sequence="50"/>
-
   </data>
 </odoo>
 
