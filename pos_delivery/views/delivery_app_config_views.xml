@@ -47,13 +47,21 @@
       </field>
     </record>
 
-    <!-- Menu Item for App Configuration -->
-    <record id="menu_delivery_app_config" model="ir.ui.menu">
-      <field name="name">Configuración App</field>
-      <field name="parent_id" ref="menu_pos_delivery_config"/>
-      <field name="action" ref="action_pos_delivery_config"/>
-      <field name="sequence">50</field>
+    <!-- Action for App Configuration -->
+    <record id="action_delivery_app_qr_config" model="ir.actions.act_window">
+      <field name="name">Configuración App Domiciliarios</field>
+      <field name="res_model">pos.delivery.config</field>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="view_delivery_app_qr_config"/>
+      <field name="target">current</field>
     </record>
+
+    <!-- Menu Item for App Configuration -->
+    <menuitem id="menu_delivery_app_config"
+              name="Configuración App"
+              parent="menu_pos_delivery_config"
+              action="action_delivery_app_qr_config"
+              sequence="50"/>
 
   </data>
 </odoo>

@@ -27,6 +27,7 @@
         'security/pos_delivery_security.xml',
         'security/ir.model.access.csv',
         'data/delivery_zones_data.xml',
+        'views/pos_delivery_menus.xml',  # Load menus first
         'views/pos_config_views.xml',
         'views/pos_delivery_order_views.xml',
         'views/pos_order_views.xml',
@@ -37,7 +38,6 @@
         'views/delivery_config_views.xml',
         'views/delivery_app_config_views.xml',
         'wizard/delivery_app_qr_wizard_views.xml',
-        'views/pos_delivery_menus.xml',
     ],
     'external_dependencies': {
         'python': ['qrcode'],
