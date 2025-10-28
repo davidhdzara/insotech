@@ -7,10 +7,10 @@ class PosOrder(models.Model):
     _inherit = 'pos.order'
 
     # Delivery Fields
-    is_delivery = fields.Boolean(string='Is Delivery Order', default=False)
-    delivery_order_id = fields.Many2one('pos.delivery.order', string='Delivery Order', 
+    is_delivery = fields.Boolean(string='Es Orden de Entrega', default=False)
+    delivery_order_id = fields.Many2one('pos.delivery.order', string='Orden de Entrega', 
                                          readonly=True, copy=False)
-    delivery_order_count = fields.Integer(string='Delivery Orders', 
+    delivery_order_count = fields.Integer(string='Órdenes de Entrega', 
                                           compute='_compute_delivery_order_count')
 
     @api.depends('delivery_order_id')
@@ -27,7 +27,7 @@ class PosOrder(models.Model):
         if self.delivery_order_id:
             return {
                 'type': 'ir.actions.act_window',
-                'name': _('Delivery Order'),
+                'name': _('Orden de Entrega'),
                 'res_model': 'pos.delivery.order',
                 'res_id': self.delivery_order_id.id,
                 'view_mode': 'form',
@@ -37,7 +37,7 @@ class PosOrder(models.Model):
         # Create new delivery order directly
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Create Delivery Order'),
+            'name': _('Crear Orden de Entrega'),
             'res_model': 'pos.delivery.order',
             'view_mode': 'form',
             'target': 'new',
@@ -57,7 +57,7 @@ class PosOrder(models.Model):
         
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Delivery Order'),
+            'name': _('Orden de Entrega'),
             'res_model': 'pos.delivery.order',
             'res_id': self.delivery_order_id.id,
             'view_mode': 'form',
@@ -96,7 +96,7 @@ class PosOrder(models.Model):
                 # Skip if no customer is assigned
                 if not order.partner_id:
                     order.message_post(
-                        body=_("Cannot create delivery order: No customer assigned to this order")
+                        body=_("No se puede crear orden de entrega: No hay cliente asignado a esta orden")
                     )
                     continue
                 
@@ -104,7 +104,7 @@ class PosOrder(models.Model):
                 delivery_vals = {
                     'pos_order_id': order.id,
                     'partner_id': order.partner_id.id,
-                    'delivery_address': order._get_partner_address() or 'No address provided',
+                    'delivery_address': order._get_partner_address() or 'No se proporcionó dirección',
                     'delivery_phone': order.partner_id.phone or order.partner_id.mobile or '',
                     'state': 'pending',  # Start as pending, will be assigned later
                 }
@@ -115,7 +115,7 @@ class PosOrder(models.Model):
                 
                 # Notify
                 order.message_post(
-                    body=_("Delivery order %s created automatically") % delivery_order.name
+                    body=_("Orden de entrega %s creada automáticamente") % delivery_order.name
                 )
         
         return result

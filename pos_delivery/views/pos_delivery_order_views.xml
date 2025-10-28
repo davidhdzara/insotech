@@ -62,7 +62,7 @@
                       <i class="fa fa-money"/>
                       <field name="order_total" widget="monetary"/>
                       <t t-if="record.delivery_cost.raw_value > 0">
-                        + <field name="delivery_cost" widget="monetary"/> (delivery)
+                        + <field name="delivery_cost" widget="monetary"/> (envío)
                       </t>
                     </strong>
                   </div>
@@ -79,19 +79,19 @@
                               name="action_assign" 
                               type="object" 
                               class="btn btn-sm btn-primary">
-                        Assign
+                        Asignar
                       </button>
                       <button t-if="record.state.raw_value == 'assigned'" 
                               name="action_start_transit" 
                               type="object" 
                               class="btn btn-sm btn-success">
-                        Start Delivery
+                        Iniciar Entrega
                       </button>
                       <button t-if="record.state.raw_value == 'in_transit'" 
                               name="action_complete" 
                               type="object" 
                               class="btn btn-sm btn-success">
-                        Complete
+                        Completar
                       </button>
                     </div>
                     <div class="oe_kanban_bottom_right">
@@ -112,14 +112,14 @@
       <field name="name">pos.delivery.order.list</field>
       <field name="model">pos.delivery.order</field>
       <field name="arch" type="xml">
-        <list string="Delivery Orders" decoration-info="state=='pending'" 
+        <list string="Órdenes de Entrega" decoration-info="state=='pending'" 
               decoration-warning="state=='assigned'" decoration-success="state=='completed'"
               decoration-danger="state=='failed'">
-          <field name="name" string="Number"/>
-          <field name="create_date" string="Created"/>
-          <field name="partner_id" string="Customer"/>
-          <field name="delivery_person_id" string="Delivery Person"/>
-          <field name="delivery_zone_id" string="Zone"/>
+          <field name="name" string="Número"/>
+          <field name="create_date" string="Creado"/>
+          <field name="partner_id" string="Cliente"/>
+          <field name="delivery_person_id" string="Repartidor"/>
+          <field name="delivery_zone_id" string="Zona"/>
           <field name="priority" widget="priority"/>
           <field name="state" widget="badge" 
                  decoration-info="state=='pending'"
@@ -127,8 +127,8 @@
                  decoration-primary="state=='in_transit'"
                  decoration-success="state=='completed'"
                  decoration-danger="state=='failed'"/>
-          <field name="time_elapsed" string="Time"/>
-          <field name="order_total" string="Amount" widget="monetary"/>
+          <field name="time_elapsed" string="Tiempo"/>
+          <field name="order_total" string="Monto" widget="monetary"/>
           <field name="rating" optional="hide"/>
         </list>
       </field>
@@ -139,21 +139,21 @@
       <field name="name">pos.delivery.order.form</field>
       <field name="model">pos.delivery.order</field>
       <field name="arch" type="xml">
-        <form string="Delivery Order">
+        <form string="Orden de Entrega">
           <header>
             <!-- Status Bar -->
             <field name="state" widget="statusbar" statusbar_visible="pending,assigned,in_transit,completed"/>
             
             <!-- Action Buttons -->
-            <button name="action_assign" string="Assign Delivery" type="object" 
+            <button name="action_assign" string="Asignar Entrega" type="object" 
                     class="btn-primary" invisible="state != 'pending'"/>
-            <button name="action_start_transit" string="Start Delivery" type="object" 
+            <button name="action_start_transit" string="Iniciar Entrega" type="object" 
                     class="btn-success" invisible="state != 'assigned'"/>
-            <button name="action_complete" string="Mark as Completed" type="object" 
+            <button name="action_complete" string="Marcar como Completado" type="object" 
                     class="btn-success" invisible="state != 'in_transit'"/>
-            <button name="action_fail" string="Mark as Failed" type="object" 
+            <button name="action_fail" string="Marcar como Fallido" type="object" 
                     class="btn-danger" invisible="state not in ['assigned', 'in_transit']"/>
-            <button name="action_reset_to_pending" string="Reset to Pending" type="object" 
+            <button name="action_reset_to_pending" string="Reiniciar a Pendiente" type="object" 
                     invisible="state == 'pending'"/>
           </header>
 
@@ -163,7 +163,7 @@
               <button name="action_open_pos_order" type="object" 
                       class="oe_stat_button" icon="fa-shopping-cart">
                 <div class="o_field_widget o_stat_info">
-                  <span class="o_stat_text">POS Order</span>
+                  <span class="o_stat_text">Orden POS</span>
                 </div>
               </button>
             </div>
@@ -189,16 +189,16 @@
 
             <notebook>
               <!-- Delivery Information -->
-              <page string="Delivery Info" name="delivery_info">
+              <page string="Información de Entrega" name="delivery_info">
                 <group>
-                  <group string="Customer Information">
+                  <group string="Información del Cliente">
                     <field name="partner_id" options="{'no_create': True}"/>
-                    <field name="delivery_address" placeholder="Full delivery address..."/>
+                    <field name="delivery_address" placeholder="Dirección completa de entrega..."/>
                     <field name="delivery_phone" widget="phone"/>
-                    <field name="customer_notes" placeholder="Special instructions..."/>
+                    <field name="customer_notes" placeholder="Instrucciones especiales..."/>
                   </group>
 
-                  <group string="Delivery Details">
+                  <group string="Detalles de Entrega">
                     <field name="delivery_person_id" 
                            options="{'no_create_edit': True}"
                            domain="[('is_delivery_person', '=', True)]"/>
@@ -209,7 +209,7 @@
                 </group>
 
                 <group>
-                  <group string="Location" name="location">
+                  <group string="Ubicación" name="location">
                     <field name="delivery_latitude"/>
                     <field name="delivery_longitude"/>
                   </group>
@@ -217,7 +217,7 @@
               </page>
 
               <!-- Order Details -->
-              <page string="Order Details" name="order_details">
+              <page string="Detalles de Orden" name="order_details">
                 <group>
                   <group>
                     <field name="pos_order_id" readonly="1"/>
@@ -234,33 +234,33 @@
               </page>
 
               <!-- Comments -->
-              <page string="Comments" name="comments">
+              <page string="Comentarios" name="comments">
                 <group>
-                  <field name="warehouse_notes" placeholder="Notes from warehouse/kitchen staff..." 
+                  <field name="warehouse_notes" placeholder="Notas del almacén/cocina..." 
                          groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"/>
-                  <field name="delivery_notes" placeholder="Notes from delivery person..."/>
+                  <field name="delivery_notes" placeholder="Notas del repartidor..."/>
                 </group>
               </page>
 
               <!-- Proof of Delivery -->
-              <page string="Proof of Delivery" name="proof" 
+              <page string="Prueba de Entrega" name="proof" 
                     invisible="state not in ['completed', 'failed']">
                 <group>
-                  <group string="Photo Evidence">
+                  <group string="Evidencia Fotográfica">
                     <field name="delivery_photo" widget="image" class="oe_avatar"/>
                     <field name="delivery_photo_filename" invisible="1"/>
                   </group>
-                  <group string="Signature">
+                  <group string="Firma">
                     <field name="signature" widget="image"/>
                   </group>
                 </group>
               </page>
 
               <!-- Rating -->
-              <page string="Rating" name="rating" invisible="state != 'completed'">
+              <page string="Calificación" name="rating" invisible="state != 'completed'">
                 <group>
                   <field name="rating" widget="radio"/>
-                  <field name="rating_comment" placeholder="Customer feedback..."/>
+                  <field name="rating_comment" placeholder="Comentarios del cliente..."/>
                 </group>
               </page>
 
@@ -278,33 +278,33 @@
       <field name="name">pos.delivery.order.search</field>
       <field name="model">pos.delivery.order</field>
       <field name="arch" type="xml">
-        <search string="Search Delivery Orders">
-          <field name="name" string="Delivery Number"/>
-          <field name="partner_id" string="Customer"/>
-          <field name="delivery_person_id" string="Delivery Person"/>
-          <field name="pos_order_id" string="POS Order"/>
-          <field name="delivery_zone_id" string="Zone"/>
+        <search string="Buscar Órdenes de Entrega">
+          <field name="name" string="Número de Entrega"/>
+          <field name="partner_id" string="Cliente"/>
+          <field name="delivery_person_id" string="Repartidor"/>
+          <field name="pos_order_id" string="Orden POS"/>
+          <field name="delivery_zone_id" string="Zona"/>
           
-          <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
-          <filter string="Assigned" name="assigned" domain="[('state', '=', 'assigned')]"/>
-          <filter string="In Transit" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
-          <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]"/>
-          <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
-          
-          <separator/>
-          <filter string="Urgent" name="urgent" domain="[('priority', '=', '3')]"/>
-          <filter string="High Priority" name="high" domain="[('priority', '=', '2')]"/>
+          <filter string="Pendiente" name="pending" domain="[('state', '=', 'pending')]"/>
+          <filter string="Asignado" name="assigned" domain="[('state', '=', 'assigned')]"/>
+          <filter string="En Tránsito" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
+          <filter string="Completado" name="completed" domain="[('state', '=', 'completed')]"/>
+          <filter string="Fallido" name="failed" domain="[('state', '=', 'failed')]"/>
           
           <separator/>
-          <filter string="Today" name="today" domain="[('create_date', '&gt;=', datetime.datetime.now().replace(hour=0, minute=0, second=0))]"/>
-          <filter string="This Week" name="week" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+          <filter string="Urgente" name="urgent" domain="[('priority', '=', '3')]"/>
+          <filter string="Prioridad Alta" name="high" domain="[('priority', '=', '2')]"/>
           
-          <group expand="0" string="Group By">
-            <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
-            <filter string="Delivery Person" name="group_delivery_person" context="{'group_by': 'delivery_person_id'}"/>
-            <filter string="Zone" name="group_zone" context="{'group_by': 'delivery_zone_id'}"/>
-            <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
-            <filter string="Created Date" name="group_create_date" context="{'group_by': 'create_date'}"/>
+          <separator/>
+          <filter string="Hoy" name="today" domain="[('create_date', '&gt;=', datetime.datetime.now().replace(hour=0, minute=0, second=0))]"/>
+          <filter string="Esta Semana" name="week" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+          
+          <group expand="0" string="Agrupar Por">
+            <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+            <filter string="Repartidor" name="group_delivery_person" context="{'group_by': 'delivery_person_id'}"/>
+            <filter string="Zona" name="group_zone" context="{'group_by': 'delivery_zone_id'}"/>
+            <filter string="Prioridad" name="group_priority" context="{'group_by': 'priority'}"/>
+            <filter string="Fecha de Creación" name="group_create_date" context="{'group_by': 'create_date'}"/>
           </group>
         </search>
       </field>
@@ -312,17 +312,17 @@
 
     <!-- Action -->
     <record id="action_pos_delivery_order" model="ir.actions.act_window">
-      <field name="name">Delivery Orders</field>
+      <field name="name">Órdenes de Entrega</field>
       <field name="res_model">pos.delivery.order</field>
       <field name="view_mode">kanban,list,form</field>
       <field name="search_view_id" ref="view_pos_delivery_order_search"/>
       <field name="context">{'search_default_pending': 1, 'search_default_assigned': 1, 'search_default_in_transit': 1}</field>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
-          Create your first delivery order
+          Crea tu primera orden de entrega
         </p>
         <p>
-          Delivery orders are created from POS orders. Click the "Create Delivery" button on any POS order.
+          Las órdenes de entrega se crean desde las órdenes POS. Haz clic en el botón "Crear Entrega" en cualquier orden POS.
         </p>
       </field>
     </record>

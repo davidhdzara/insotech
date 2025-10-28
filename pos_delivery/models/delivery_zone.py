@@ -5,22 +5,22 @@ from odoo import models, fields, api
 
 class DeliveryZone(models.Model):
     _name = 'delivery.zone'
-    _description = 'Delivery Zone'
+    _description = 'Zona de Entrega'
     _order = 'name'
 
-    name = fields.Char(string='Zone Name', required=True)
-    code = fields.Char(string='Zone Code', required=True)
-    delivery_cost = fields.Monetary(string='Delivery Cost', currency_field='currency_id')
-    estimated_time = fields.Integer(string='Estimated Time (minutes)', 
-                                     help="Average delivery time for this zone")
-    active = fields.Boolean(string='Active', default=True)
-    description = fields.Text(string='Description')
-    currency_id = fields.Many2one('res.currency', string='Currency', 
+    name = fields.Char(string='Nombre de Zona', required=True)
+    code = fields.Char(string='Código de Zona', required=True)
+    delivery_cost = fields.Monetary(string='Costo de Envío', currency_field='currency_id')
+    estimated_time = fields.Integer(string='Tiempo Estimado (minutos)', 
+                                     help="Tiempo promedio de entrega para esta zona")
+    active = fields.Boolean(string='Activo', default=True)
+    description = fields.Text(string='Descripción')
+    currency_id = fields.Many2one('res.currency', string='Moneda', 
                                    default=lambda self: self.env.company.currency_id)
     
     # Statistics
-    delivery_count = fields.Integer(string='Total Deliveries', compute='_compute_statistics')
-    avg_delivery_time = fields.Float(string='Avg. Delivery Time (min)', 
+    delivery_count = fields.Integer(string='Total de Entregas', compute='_compute_statistics')
+    avg_delivery_time = fields.Float(string='Tiempo Promedio de Entrega (min)', 
                                       compute='_compute_statistics')
 
     def _compute_statistics(self):

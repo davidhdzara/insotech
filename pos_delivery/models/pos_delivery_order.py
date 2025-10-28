@@ -7,67 +7,67 @@ from datetime import datetime, timedelta
 
 class PosDeliveryOrder(models.Model):
     _name = 'pos.delivery.order'
-    _description = 'POS Delivery Order'
+    _description = 'Orden de Entrega POS'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc, priority desc'
 
     # Basic Information
-    name = fields.Char(string='Delivery Number', required=True, copy=False, readonly=True, 
-                       default=lambda self: _('New'), tracking=True)
-    pos_order_id = fields.Many2one('pos.order', string='POS Order', required=True, 
+    name = fields.Char(string='Número de Entrega', required=True, copy=False, readonly=True, 
+                       default=lambda self: _('Nuevo'), tracking=True)
+    pos_order_id = fields.Many2one('pos.order', string='Orden POS', required=True, 
                                     ondelete='cascade', tracking=True)
     
     # Customer Information
-    partner_id = fields.Many2one('res.partner', string='Customer', required=True, tracking=True)
-    delivery_address = fields.Text(string='Delivery Address', required=True, tracking=True)
-    delivery_phone = fields.Char(string='Delivery Phone', tracking=True)
-    delivery_latitude = fields.Float(string='Latitude', digits=(10, 7))
-    delivery_longitude = fields.Float(string='Longitude', digits=(10, 7))
+    partner_id = fields.Many2one('res.partner', string='Cliente', required=True, tracking=True)
+    delivery_address = fields.Text(string='Dirección de Entrega', required=True, tracking=True)
+    delivery_phone = fields.Char(string='Teléfono de Entrega', tracking=True)
+    delivery_latitude = fields.Float(string='Latitud', digits=(10, 7))
+    delivery_longitude = fields.Float(string='Longitud', digits=(10, 7))
     
     # Delivery Information
-    delivery_person_id = fields.Many2one('res.partner', string='Delivery Person', 
+    delivery_person_id = fields.Many2one('res.partner', string='Repartidor', 
                                           domain=[('is_delivery_person', '=', True)],
                                           tracking=True)
-    delivery_zone_id = fields.Many2one('delivery.zone', string='Delivery Zone', tracking=True)
-    delivery_cost = fields.Monetary(string='Delivery Cost', currency_field='currency_id', tracking=True)
+    delivery_zone_id = fields.Many2one('delivery.zone', string='Zona de Entrega', tracking=True)
+    delivery_cost = fields.Monetary(string='Costo de Envío', currency_field='currency_id', tracking=True)
     
     # Status and Priority
     state = fields.Selection([
-        ('pending', 'Pending'),
-        ('assigned', 'Assigned'),
-        ('in_transit', 'In Transit'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed')
-    ], string='Status', default='pending', required=True, tracking=True)
+        ('pending', 'Pendiente'),
+        ('assigned', 'Asignado'),
+        ('in_transit', 'En Tránsito'),
+        ('completed', 'Completado'),
+        ('failed', 'Fallido')
+    ], string='Estado', default='pending', required=True, tracking=True)
     
     priority = fields.Selection([
-        ('0', 'Low'),
+        ('0', 'Baja'),
         ('1', 'Normal'),
-        ('2', 'High'),
-        ('3', 'Urgent')
-    ], string='Priority', default='1', tracking=True)
+        ('2', 'Alta'),
+        ('3', 'Urgente')
+    ], string='Prioridad', default='1', tracking=True)
     
     # Time Tracking
-    create_date = fields.Datetime(string='Created Date', readonly=True)
-    assigned_date = fields.Datetime(string='Assigned Date', readonly=True, tracking=True)
-    in_transit_date = fields.Datetime(string='In Transit Date', readonly=True, tracking=True)
-    completed_date = fields.Datetime(string='Completed Date', readonly=True, tracking=True)
-    estimated_delivery_time = fields.Datetime(string='Estimated Delivery Time', tracking=True)
+    create_date = fields.Datetime(string='Fecha de Creación', readonly=True)
+    assigned_date = fields.Datetime(string='Fecha de Asignación', readonly=True, tracking=True)
+    in_transit_date = fields.Datetime(string='Fecha en Tránsito', readonly=True, tracking=True)
+    completed_date = fields.Datetime(string='Fecha de Completado', readonly=True, tracking=True)
+    estimated_delivery_time = fields.Datetime(string='Tiempo Estimado de Entrega', tracking=True)
     
     # Computed Time Fields
-    total_delivery_time = fields.Float(string='Total Time (minutes)', compute='_compute_delivery_time', 
-                                        store=True, help="Time from creation to completion")
-    time_elapsed = fields.Char(string='Time Elapsed', compute='_compute_time_elapsed')
+    total_delivery_time = fields.Float(string='Tiempo Total (minutos)', compute='_compute_delivery_time', 
+                                        store=True, help="Tiempo desde la creación hasta la finalización")
+    time_elapsed = fields.Char(string='Tiempo Transcurrido', compute='_compute_time_elapsed')
     
     # Comments and Notes
-    warehouse_notes = fields.Text(string='Warehouse Notes', help="Internal notes from warehouse staff")
-    delivery_notes = fields.Text(string='Delivery Notes', help="Notes from delivery person")
-    customer_notes = fields.Text(string='Customer Notes', help="Special instructions from customer")
+    warehouse_notes = fields.Text(string='Notas del Almacén', help="Notas internas del personal del almacén")
+    delivery_notes = fields.Text(string='Notas del Repartidor', help="Notas del repartidor")
+    customer_notes = fields.Text(string='Notas del Cliente', help="Instrucciones especiales del cliente")
     
     # Proof of Delivery
-    delivery_photo = fields.Binary(string='Delivery Photo', attachment=True)
-    delivery_photo_filename = fields.Char(string='Photo Filename')
-    signature = fields.Binary(string='Customer Signature', attachment=True)
+    delivery_photo = fields.Binary(string='Foto de Entrega', attachment=True)
+    delivery_photo_filename = fields.Char(string='Nombre del Archivo de Foto')
+    signature = fields.Binary(string='Firma del Cliente', attachment=True)
     
     # Rating
     rating = fields.Selection([
@@ -76,25 +76,25 @@ class PosDeliveryOrder(models.Model):
         ('3', '⭐⭐⭐'),
         ('4', '⭐⭐⭐⭐'),
         ('5', '⭐⭐⭐⭐⭐')
-    ], string='Customer Rating', tracking=True)
-    rating_comment = fields.Text(string='Rating Comment')
+    ], string='Calificación del Cliente', tracking=True)
+    rating_comment = fields.Text(string='Comentario de Calificación')
     
     # Related Fields from POS Order
-    order_total = fields.Monetary(related='pos_order_id.amount_total', string='Order Total', 
+    order_total = fields.Monetary(related='pos_order_id.amount_total', string='Total de Orden', 
                                    currency_field='currency_id', readonly=True)
     currency_id = fields.Many2one(related='pos_order_id.currency_id', readonly=True)
     
     # Color for Kanban
-    color = fields.Integer(string='Color Index', compute='_compute_color', store=True)
+    color = fields.Integer(string='Índice de Color', compute='_compute_color', store=True)
     
     # Portal Access
-    access_token = fields.Char('Security Token', copy=False)
+    access_token = fields.Char('Token de Seguridad', copy=False)
 
     @api.model
     def create(self, vals):
         """Generate sequence number on creation"""
-        if vals.get('name', _('New')) == _('New'):
-            vals['name'] = self.env['ir.sequence'].next_by_code('pos.delivery.order') or _('New')
+        if vals.get('name', _('Nuevo')) == _('Nuevo'):
+            vals['name'] = self.env['ir.sequence'].next_by_code('pos.delivery.order') or _('Nuevo')
         if not vals.get('access_token'):
             vals['access_token'] = self._generate_access_token()
         
@@ -178,7 +178,7 @@ class PosDeliveryOrder(models.Model):
         """Assign delivery to a delivery person"""
         self.ensure_one()
         if not self.delivery_person_id:
-            raise UserError(_("Please select a delivery person before assigning."))
+            raise UserError(_("Por favor seleccione un repartidor antes de asignar."))
         self.write({
             'state': 'assigned',
             'assigned_date': fields.Datetime.now()
@@ -203,11 +203,11 @@ class PosDeliveryOrder(models.Model):
         
         # Validate photo requirement
         if config.enable_photo_required and not self.delivery_photo:
-            raise UserError(_("Delivery photo is required to complete this delivery. Please upload a photo."))
+            raise UserError(_("Se requiere una foto de entrega para completar esta entrega. Por favor suba una foto."))
         
         # Validate signature requirement
         if config.enable_signature_required and not self.signature:
-            raise UserError(_("Customer signature is required to complete this delivery."))
+            raise UserError(_("Se requiere la firma del cliente para completar esta entrega."))
         
         self.write({
             'state': 'completed',
@@ -240,10 +240,10 @@ class PosDeliveryOrder(models.Model):
         self.ensure_one()
         # Prepare notification message
         messages = {
-            'assigned': _("Delivery %s has been assigned to %s") % (self.name, self.delivery_person_id.name),
-            'in_transit': _("Delivery %s is now in transit") % self.name,
-            'completed': _("Delivery %s has been completed") % self.name,
-            'failed': _("Delivery %s has failed") % self.name,
+            'assigned': _("La entrega %s ha sido asignada a %s") % (self.name, self.delivery_person_id.name),
+            'in_transit': _("La entrega %s está ahora en tránsito") % self.name,
+            'completed': _("La entrega %s ha sido completada") % self.name,
+            'failed': _("La entrega %s ha fallado") % self.name,
         }
         
         # Post message in chatter
@@ -259,7 +259,7 @@ class PosDeliveryOrder(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('POS Order'),
+            'name': _('Orden POS'),
             'res_model': 'pos.order',
             'res_id': self.pos_order_id.id,
             'view_mode': 'form',

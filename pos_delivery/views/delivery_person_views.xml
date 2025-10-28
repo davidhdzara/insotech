@@ -6,32 +6,31 @@
       <field name="name">res.partner.delivery.person.form</field>
       <field name="model">res.partner</field>
       <field name="arch" type="xml">
-        <form string="Delivery Person">
+        <form string="Repartidor">
           <sheet>
             <field name="image_1920" widget="image" class="oe_avatar"/>
             
             <div class="oe_title">
               <h1>
-                <field name="name" placeholder="Delivery Person Name"/>
+                <field name="name" placeholder="Nombre del Repartidor"/>
               </h1>
             </div>
 
             <group>
-              <group string="Contact Information">
+              <group string="Información de Contacto">
                 <field name="phone" widget="phone"/>
                 <field name="mobile" widget="phone"/>
                 <field name="email" widget="email"/>
               </group>
               
-              <group string="Delivery Information">
-                <field name="delivery_person_code"/>
+              <group string="Información de Entrega">
                 <field name="vehicle_type"/>
                 <field name="vehicle_plate"/>
                 <field name="is_delivery_person" invisible="1"/>
               </group>
             </group>
 
-            <group string="Statistics" name="stats">
+            <group string="Estadísticas" name="stats">
               <group>
                 <field name="total_deliveries" readonly="1"/>
                 <field name="completed_deliveries" readonly="1"/>
@@ -58,9 +57,8 @@
       <field name="name">res.partner.delivery.person.list</field>
       <field name="model">res.partner</field>
       <field name="arch" type="xml">
-        <list string="Delivery Persons">
+        <list string="Repartidores">
           <field name="name"/>
-          <field name="delivery_person_code"/>
           <field name="phone" widget="phone"/>
           <field name="vehicle_type"/>
           <field name="total_deliveries"/>
@@ -106,7 +104,7 @@
                     </div>
                     <div class="mt-2">
                       <span class="badge badge-pill badge-info">
-                        <field name="total_deliveries"/> deliveries
+                        <field name="total_deliveries"/> entregas
                       </span>
                     </div>
                     <div t-if="record.avg_rating.raw_value > 0" class="mt-1">
@@ -126,16 +124,15 @@
       <field name="name">res.partner.delivery.person.search</field>
       <field name="model">res.partner</field>
       <field name="arch" type="xml">
-        <search string="Search Delivery Persons">
+        <search string="Buscar Repartidores">
           <field name="name"/>
-          <field name="delivery_person_code"/>
           <field name="phone"/>
           <field name="vehicle_type"/>
           
-          <filter string="All" name="all" domain="[]"/>
+          <filter string="Todos" name="all" domain="[]"/>
           
-          <group expand="0" string="Group By">
-            <filter string="Vehicle Type" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>
+          <group expand="0" string="Agrupar Por">
+            <filter string="Tipo de Vehículo" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>
           </group>
         </search>
       </field>
@@ -143,7 +140,7 @@
 
     <!-- Action for Delivery Persons -->
     <record id="action_delivery_person" model="ir.actions.act_window">
-      <field name="name">Delivery Persons</field>
+      <field name="name">Repartidores</field>
       <field name="res_model">res.partner</field>
       <field name="view_mode">kanban,list,form</field>
       <field name="domain">[('is_delivery_person', '=', True)]</field>
@@ -154,10 +151,10 @@
         (0, 0, {'view_mode': 'form', 'view_id': ref('view_delivery_person_form')})]"/>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
-          Add your first delivery person
+          Añade tu primer repartidor
         </p>
         <p>
-          Delivery persons should be portal users to avoid consuming licenses.
+          Los repartidores deben ser usuarios del portal para evitar consumir licencias.
         </p>
       </field>
     </record>
@@ -167,7 +164,7 @@
       <field name="name">delivery.zone.form</field>
       <field name="model">delivery.zone</field>
       <field name="arch" type="xml">
-        <form string="Delivery Zone">
+        <form string="Zona de Entrega">
           <sheet>
             <group>
               <group>
@@ -183,10 +180,10 @@
             </group>
             
             <group>
-              <field name="description" placeholder="Zone description..."/>
+              <field name="description" placeholder="Descripción de la zona..."/>
             </group>
 
-            <group string="Statistics" name="stats">
+            <group string="Estadísticas" name="stats">
               <group>
                 <field name="delivery_count" readonly="1"/>
                 <field name="avg_delivery_time" readonly="1" widget="float_time"/>
@@ -201,7 +198,7 @@
       <field name="name">delivery.zone.list</field>
       <field name="model">delivery.zone</field>
       <field name="arch" type="xml">
-        <list string="Delivery Zones">
+        <list string="Zonas de Entrega">
           <field name="name"/>
           <field name="code"/>
           <field name="delivery_cost" widget="monetary"/>
@@ -214,7 +211,7 @@
     </record>
 
     <record id="action_delivery_zone" model="ir.actions.act_window">
-      <field name="name">Delivery Zones</field>
+      <field name="name">Zonas de Entrega</field>
       <field name="res_model">delivery.zone</field>
       <field name="view_mode">list,form</field>
     </record>

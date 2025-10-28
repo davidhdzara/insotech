@@ -7,25 +7,21 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     # Delivery Person Fields
-    is_delivery_person = fields.Boolean(string='Is Delivery Person', default=False)
-    delivery_person_code = fields.Char(string='Delivery Person Code')
+    is_delivery_person = fields.Boolean(string='Es Repartidor', default=False)
+    delivery_person_code = fields.Char(string='Código de Repartidor')
     vehicle_type = fields.Selection([
-        ('bike', 'Bike'),
-        ('motorcycle', 'Motorcycle'),
-        ('car', 'Car'),
-        ('bicycle', 'Bicycle'),
-        ('scooter', 'Scooter')
-    ], string='Vehicle Type')
-    vehicle_plate = fields.Char(string='Vehicle Plate')
+        ('motorcycle', 'Moto')
+    ], string='Tipo de Vehículo', default='motorcycle')
+    vehicle_plate = fields.Char(string='Placa del Vehículo')
     
     # Statistics
-    total_deliveries = fields.Integer(string='Total Deliveries', compute='_compute_delivery_stats')
-    completed_deliveries = fields.Integer(string='Completed Deliveries', 
+    total_deliveries = fields.Integer(string='Total de Entregas', compute='_compute_delivery_stats')
+    completed_deliveries = fields.Integer(string='Entregas Completadas', 
                                           compute='_compute_delivery_stats')
-    failed_deliveries = fields.Integer(string='Failed Deliveries', compute='_compute_delivery_stats')
-    avg_rating = fields.Float(string='Average Rating', compute='_compute_delivery_stats', 
+    failed_deliveries = fields.Integer(string='Entregas Fallidas', compute='_compute_delivery_stats')
+    avg_rating = fields.Float(string='Calificación Promedio', compute='_compute_delivery_stats', 
                                digits=(2, 1))
-    avg_delivery_time = fields.Float(string='Avg. Delivery Time (min)', 
+    avg_delivery_time = fields.Float(string='Tiempo Promedio de Entrega (min)', 
                                       compute='_compute_delivery_stats')
 
     def _compute_delivery_stats(self):
@@ -66,7 +62,7 @@ class ResPartner(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('My Deliveries'),
+            'name': _('Mis Entregas'),
             'res_model': 'pos.delivery.order',
             'view_mode': 'list,kanban,form',
             'domain': [('delivery_person_id', '=', self.id)],

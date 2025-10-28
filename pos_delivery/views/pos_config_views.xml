@@ -8,14 +8,11 @@
       <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
       <field name="arch" type="xml">
         
-        <!-- Add Delivery Only field at the top, right after name -->
-        <field name="name" position="after">
-          <label for="is_delivery_only" string="Delivery Only Mode"/>
-          <div>
-            <field name="is_delivery_only" class="oe_inline"/>
-            <span class="text-muted ms-2">Check this if this POS is only for delivery orders</span>
-          </div>
-        </field>
+        <!-- Add Delivery Only checkbox after the name field -->
+        <xpath expr="//field[@name='name']" position="after">
+          <field name="is_delivery_only" nolabel="1"/>
+          <label for="is_delivery_only" string="Solo Entregas"/>
+        </xpath>
 
       </field>
     </record>

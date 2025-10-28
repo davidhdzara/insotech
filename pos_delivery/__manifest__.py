@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "POS Delivery Management",
-    'summary': "Advanced delivery order management integrated with Point of Sale",
+    'name': "Gestión de Entregas POS",
+    'summary': "Sistema avanzado de gestión de pedidos de entrega integrado con el Punto de Venta",
     'description': """
-        Complete delivery management system for POS orders
-        ====================================================
+        Sistema completo de gestión de entregas para órdenes POS
+        =========================================================
         
-        Features:
-        ---------
-        * Create delivery orders directly from POS
-        * Assign delivery to portal users (no license consumption)
-        * Track delivery status with kanban view
-        * Delivery person and warehouse comments
-        * Photo evidence of delivery
-        * Customer rating system
-        * Automatic timers and notifications
-        * Delivery zones and priority management
-        * Performance statistics per delivery person
+        Características:
+        ----------------
+        * Crear órdenes de entrega directamente desde el POS
+        * Asignar entregas a usuarios del portal (sin consumo de licencias)
+        * Seguimiento del estado de entregas con vista kanban
+        * Comentarios del repartidor y del almacén
+        * Evidencia fotográfica de la entrega
+        * Sistema de calificación del cliente
+        * Temporizadores automáticos y notificaciones
+        * Gestión de zonas de entrega y prioridades
+        * Estadísticas de rendimiento por repartidor
     """,
     'author': "Insotech",
     'website': "http://www.insotech.com",

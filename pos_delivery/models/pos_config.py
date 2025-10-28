@@ -7,8 +7,8 @@ class PosConfig(models.Model):
     _inherit = 'pos.config'
 
     is_delivery_only = fields.Boolean(
-        string='Delivery Only',
+        string='Solo Entregas',
         default=False,
-        help="Enable this for points of sale that only handle delivery orders."
+        help="Active esta opción para puntos de venta que solo manejan órdenes de entrega."
     )
 

@@ -15,7 +15,7 @@
                   class="oe_stat_button" 
                   icon="fa-truck"
                   invisible="delivery_order_count == 0">
-            <field name="delivery_order_count" widget="statinfo" string="Delivery"/>
+            <field name="delivery_order_count" widget="statinfo" string="Entrega"/>
           </button>
           
           <!-- Create Delivery Button -->
@@ -25,8 +25,8 @@
                   icon="fa-motorcycle"
                   invisible="delivery_order_count > 0">
             <div class="o_stat_info">
-              <span class="o_stat_text">Create</span>
-              <span class="o_stat_text">Delivery</span>
+              <span class="o_stat_text">Crear</span>
+              <span class="o_stat_text">Entrega</span>
             </div>
           </button>
         </xpath>

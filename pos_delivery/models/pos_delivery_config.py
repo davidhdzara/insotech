@@ -5,70 +5,70 @@ from odoo import models, fields, api
 
 class PosDeliveryConfig(models.Model):
     _name = 'pos.delivery.config'
-    _description = 'POS Delivery Configuration'
+    _description = 'Configuración de Entregas POS'
 
-    name = fields.Char(string='Configuration Name', default='Delivery Settings')
+    name = fields.Char(string='Nombre de Configuración', default='Configuración de Entregas')
     
     # Feature Toggles
     enable_photo_required = fields.Boolean(
-        string='Require Delivery Photo',
+        string='Requerir Foto de Entrega',
         default=False,
-        help="Make photo upload mandatory when completing deliveries"
+        help="Hacer obligatoria la carga de foto al completar entregas"
     )
     enable_signature_required = fields.Boolean(
-        string='Require Customer Signature',
+        string='Requerir Firma del Cliente',
         default=False,
-        help="Make customer signature mandatory when completing deliveries"
+        help="Hacer obligatoria la firma del cliente al completar entregas"
     )
     enable_geolocation = fields.Boolean(
-        string='Enable Geolocation',
+        string='Habilitar Geolocalización',
         default=True,
-        help="Allow tracking delivery location with GPS coordinates"
+        help="Permitir rastrear la ubicación de entrega con coordenadas GPS"
     )
     enable_zone_required = fields.Boolean(
-        string='Require Delivery Zone',
+        string='Requerir Zona de Entrega',
         default=True,
-        help="Make delivery zone selection mandatory"
+        help="Hacer obligatoria la selección de zona de entrega"
     )
     enable_rating = fields.Boolean(
-        string='Enable Customer Rating',
+        string='Habilitar Calificación del Cliente',
         default=True,
-        help="Allow customers to rate delivery service"
+        help="Permitir a los clientes calificar el servicio de entrega"
     )
     
     # Auto-assignment Settings
     enable_auto_assignment = fields.Boolean(
-        string='Enable Auto-Assignment',
+        string='Habilitar Asignación Automática',
         default=False,
-        help="Automatically assign deliveries to available delivery persons"
+        help="Asignar automáticamente entregas a repartidores disponibles"
     )
     
     # Time Settings
     default_delivery_time = fields.Integer(
-        string='Default Delivery Time (minutes)',
+        string='Tiempo de Entrega Predeterminado (minutos)',
         default=30,
-        help="Default estimated delivery time if zone is not set"
+        help="Tiempo de entrega estimado predeterminado si no se establece la zona"
     )
     
     # Notification Settings
     enable_notifications = fields.Boolean(
-        string='Enable Notifications',
+        string='Habilitar Notificaciones',
         default=True,
-        help="Send notifications on status changes"
+        help="Enviar notificaciones en cambios de estado"
     )
     
     # Map Settings
     default_map_zoom = fields.Integer(
-        string='Default Map Zoom Level',
+        string='Nivel de Zoom del Mapa Predeterminado',
         default=15,
-        help="Default zoom level for maps (1-20)"
+        help="Nivel de zoom predeterminado para mapas (1-20)"
     )
     
-    company_id = fields.Many2one('res.company', string='Company', 
+    company_id = fields.Many2one('res.company', string='Compañía', 
                                   default=lambda self: self.env.company)
     
     server_url = fields.Char(
-        string='Server URL',
+        string='URL del Servidor',
         compute='_compute_server_url',
         help='URL del servidor Odoo para configurar la app'
     )
@@ -85,7 +85,7 @@ class PosDeliveryConfig(models.Model):
         """Get current configuration"""
         config = self.search([], limit=1)
         if not config:
-            config = self.create({'name': 'Delivery Settings'})
+            config = self.create({'name': 'Configuración de Entregas'})
         return config
 
     def action_show_qr_code(self):
