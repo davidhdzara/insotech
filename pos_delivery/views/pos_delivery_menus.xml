@@ -1,0 +1,54 @@
+<odoo>
+  <data>
+
+    <!-- Main Menu -->
+    <menuitem id="menu_pos_delivery_root"
+              name="Entregas"
+              sequence="10"
+              web_icon="pos_delivery,static/description/icon.png"/>
+
+    <!-- Delivery Orders Menu -->
+    <menuitem id="menu_pos_delivery_orders"
+              name="Órdenes de Entrega"
+              parent="menu_pos_delivery_root"
+              action="action_pos_delivery_order"
+              sequence="10"/>
+
+    <!-- Delivery Persons Menu -->
+    <menuitem id="menu_delivery_persons"
+              name="Repartidores"
+              parent="menu_pos_delivery_root"
+              action="action_delivery_person"
+              sequence="20"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_pos_delivery_config"
+              name="Configuración"
+              parent="menu_pos_delivery_root"
+              sequence="100"/>
+
+    <!-- Delivery Zones Menu -->
+    <menuitem id="menu_delivery_zones"
+              name="Zonas de Entrega"
+              parent="menu_pos_delivery_config"
+              action="action_delivery_zone"
+              sequence="10"/>
+
+    <!-- Delivery Settings Menu -->
+    <menuitem id="menu_delivery_settings"
+              name="Configuración"
+              parent="menu_pos_delivery_config"
+              action="action_pos_delivery_config"
+              sequence="20"
+              groups="group_delivery_manager"/>
+
+    <!-- App Configuration Menu -->
+    <menuitem id="menu_delivery_app_config"
+              name="Configuración App"
+              parent="menu_pos_delivery_config"
+              action="action_delivery_app_qr_config"
+              sequence="30"/>
+
+  </data>
+</odoo>
+

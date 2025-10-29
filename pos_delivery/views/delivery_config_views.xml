@@ -1,0 +1,79 @@
+<odoo>
+  <data>
+
+    <!-- Configuration Form View -->
+    <record id="view_pos_delivery_config_form" model="ir.ui.view">
+      <field name="name">pos.delivery.config.form</field>
+      <field name="model">pos.delivery.config</field>
+      <field name="arch" type="xml">
+        <form string="Configuración de Entregas">
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" readonly="1"/>
+              </h1>
+            </div>
+
+            <group>
+              <group string="📸 Configuración de Foto y Firma">
+                <field name="enable_photo_required" widget="boolean_toggle"/>
+                <field name="enable_signature_required" widget="boolean_toggle"/>
+              </group>
+              
+              <group string="📍 Configuración de Geolocalización">
+                <field name="enable_geolocation" widget="boolean_toggle"/>
+                <field name="default_map_zoom"/>
+              </group>
+            </group>
+
+            <group>
+              <group string="🗺️ Configuración de Zonas">
+                <field name="enable_zone_required" widget="boolean_toggle"/>
+                <field name="default_delivery_time" widget="integer"/>
+              </group>
+              
+              <group string="⭐ Configuración de Calificaciones">
+                <field name="enable_rating" widget="boolean_toggle"/>
+              </group>
+            </group>
+
+            <group>
+              <group string="🤖 Automatización">
+                <field name="enable_auto_assignment" widget="boolean_toggle"/>
+                <div colspan="2" class="alert alert-info" role="alert"
+                     invisible="not enable_auto_assignment">
+                  <i class="fa fa-info-circle"/> 
+                  La asignación automática asignará nuevas entregas a repartidores disponibles según su carga de trabajo y zona.
+                </div>
+              </group>
+              
+              <group string="🔔 Notificaciones">
+                <field name="enable_notifications" widget="boolean_toggle"/>
+                <div colspan="2" class="alert alert-info" role="alert"
+                     invisible="not enable_notifications">
+                  <i class="fa fa-bell"/> 
+                  Se enviarán notificaciones a los usuarios relevantes cuando cambie el estado de la entrega.
+                </div>
+              </group>
+            </group>
+
+            <group>
+              <field name="company_id" invisible="1"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Configuration Action -->
+    <record id="action_pos_delivery_config" model="ir.actions.act_window">
+      <field name="name">Configuración de Entregas</field>
+      <field name="res_model">pos.delivery.config</field>
+      <field name="view_mode">form</field>
+      <field name="target">inline</field>
+      <field name="context">{'form_view_initial_mode': 'edit'}</field>
+    </record>
+
+  </data>
+</odoo>
+

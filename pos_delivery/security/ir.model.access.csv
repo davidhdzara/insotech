@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pos_delivery_order_user,pos.delivery.order user,model_pos_delivery_order,point_of_sale.group_pos_user,1,1,1,0
+access_pos_delivery_order_manager,pos.delivery.order manager,model_pos_delivery_order,point_of_sale.group_pos_manager,1,1,1,1
+access_pos_delivery_order_portal,pos.delivery.order portal,model_pos_delivery_order,base.group_portal,1,1,0,0
+access_delivery_zone_user,delivery.zone user,model_delivery_zone,point_of_sale.group_pos_user,1,0,0,0
+access_delivery_zone_manager,delivery.zone manager,model_delivery_zone,point_of_sale.group_pos_manager,1,1,1,1
+access_res_partner_delivery,res.partner delivery,base.model_res_partner,group_delivery_person,1,1,0,0
+access_pos_delivery_config_user,pos.delivery.config user,model_pos_delivery_config,point_of_sale.group_pos_user,1,0,0,0
+access_pos_delivery_config_manager,pos.delivery.config manager,model_pos_delivery_config,point_of_sale.group_pos_manager,1,1,1,1
+access_delivery_history_user,delivery.history user,model_delivery_history,point_of_sale.group_pos_user,1,0,0,0
+access_delivery_history_manager,delivery.history manager,model_delivery_history,point_of_sale.group_pos_manager,1,1,1,1
+access_delivery_history_portal,delivery.history portal,model_delivery_history,base.group_portal,1,0,0,0
+access_pos_delivery_session_user,pos.delivery.session user,model_pos_delivery_session,point_of_sale.group_pos_user,1,1,1,1
+access_pos_delivery_session_portal,pos.delivery.session portal,model_pos_delivery_session,base.group_portal,1,1,1,0
+access_delivery_app_qr_wizard,delivery.app.qr.wizard,model_delivery_app_qr_wizard,point_of_sale.group_pos_user,1,1,1,1

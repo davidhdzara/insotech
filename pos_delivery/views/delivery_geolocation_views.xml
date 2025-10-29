@@ -1,0 +1,112 @@
+<odoo>
+  <data>
+
+    <!-- Enhanced Delivery Order Form with Map Integration -->
+    <record id="view_pos_delivery_order_form_geolocation" model="ir.ui.view">
+      <field name="name">pos.delivery.order.form.geolocation</field>
+      <field name="model">pos.delivery.order</field>
+      <field name="inherit_id" ref="view_pos_delivery_order_form"/>
+      <field name="arch" type="xml">
+
+        <!-- Add History Smart Button -->
+        <xpath expr="//div[@name='button_box']" position="inside">
+          <button name="action_view_history" type="object" 
+                  class="oe_stat_button" icon="fa-history">
+            <field name="history_count" widget="statinfo" string="History"/>
+          </button>
+        </xpath>
+
+        <!-- Improve Location Section -->
+        <xpath expr="//group[@name='location']" position="replace">
+          <group string="📍 Geolocation" name="location">
+            <field name="delivery_latitude" widget="float"/>
+            <field name="delivery_longitude" widget="float"/>
+          </group>
+        </xpath>
+
+        <!-- Enhanced Proof of Delivery Section -->
+        <xpath expr="//page[@name='proof']" position="attributes">
+          <attribute name="invisible">0</attribute>
+        </xpath>
+
+        <xpath expr="//page[@name='proof']" position="inside">
+          <group string="📸 Photo Requirements" invisible="state in ['pending', 'assigned']">
+            <div colspan="2" class="alert alert-warning" role="alert"
+                 invisible="delivery_photo or state not in ['in_transit', 'completed']">
+              <i class="fa fa-camera"/> 
+              <strong>Important:</strong> Please upload delivery photo for proof of delivery.
+            </div>
+            
+            <div colspan="2" class="alert alert-success" role="alert"
+                 invisible="not delivery_photo">
+              <i class="fa fa-check"/> Photo uploaded successfully
+            </div>
+          </group>
+        </xpath>
+
+      </field>
+    </record>
+
+    <!-- Enhanced Kanban with Better Visual Indicators -->
+    <record id="view_pos_delivery_order_kanban_enhanced" model="ir.ui.view">
+      <field name="name">pos.delivery.order.kanban.enhanced</field>
+      <field name="model">pos.delivery.order</field>
+      <field name="inherit_id" ref="view_pos_delivery_order_kanban"/>
+      <field name="arch" type="xml">
+        
+        <!-- Add fields needed for badges -->
+        <xpath expr="//field[@name='delivery_zone_id']" position="after">
+          <field name="delivery_photo"/>
+          <field name="delivery_latitude"/>
+          <field name="delivery_longitude"/>
+          <field name="signature"/>
+          <field name="history_count"/>
+        </xpath>
+        
+        <!-- Add visual indicators for features -->
+        <xpath expr="//div[@class='o_kanban_record_bottom mt-2']" position="before">
+          
+          <!-- Feature Indicators -->
+          <div class="mb-1">
+            <span t-if="record.delivery_photo.raw_value" class="badge badge-success" title="Has delivery photo">
+              <i class="fa fa-camera"/> Photo
+            </span>
+            <span t-if="record.delivery_latitude.raw_value and record.delivery_longitude.raw_value" 
+                  class="badge badge-info" title="Location tracked">
+              <i class="fa fa-map-marker"/> GPS
+            </span>
+            <span t-if="record.signature.raw_value" class="badge badge-primary" title="Has signature">
+              <i class="fa fa-pencil"/> Signed
+            </span>
+            <span t-if="record.history_count.raw_value > 0" class="badge badge-secondary" title="Has history">
+              <i class="fa fa-history"/> <field name="history_count"/>
+            </span>
+          </div>
+
+        </xpath>
+
+      </field>
+    </record>
+
+    <!-- Map View for All Deliveries (Custom View) -->
+    <record id="view_pos_delivery_order_map_dashboard" model="ir.ui.view">
+      <field name="name">pos.delivery.order.map.dashboard</field>
+      <field name="model">pos.delivery.order</field>
+      <field name="arch" type="xml">
+        <list string="Delivery Map" create="false">
+          <field name="name"/>
+          <field name="partner_id"/>
+          <field name="delivery_address"/>
+          <field name="delivery_person_id"/>
+          <field name="state" widget="badge"/>
+          <field name="delivery_latitude"/>
+          <field name="delivery_longitude"/>
+          <button name="action_open_pos_order" type="object" 
+                  string="View Order" class="btn-link" icon="fa-shopping-cart"/>
+        </list>
+      </field>
+    </record>
+
+  </data>
+</odoo>
+

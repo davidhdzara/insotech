@@ -1,0 +1,22 @@
+<odoo>
+  <data>
+
+    <!-- Extend POS Config Form View -->
+    <record id="view_pos_config_form_delivery" model="ir.ui.view">
+      <field name="name">pos.config.form.delivery</field>
+      <field name="model">pos.config</field>
+      <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+      <field name="arch" type="xml">
+        
+        <!-- Add Delivery Only checkbox after the name field -->
+        <xpath expr="//field[@name='name']" position="after">
+          <field name="is_delivery_only" nolabel="1"/>
+          <label for="is_delivery_only" string="Solo Entregas"/>
+        </xpath>
+
+      </field>
+    </record>
+
+  </data>
+</odoo>
+
