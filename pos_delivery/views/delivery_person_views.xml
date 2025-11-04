@@ -18,15 +18,32 @@
 
             <group>
               <group string="Información de Contacto">
-                <field name="phone" widget="phone"/>
-                <field name="mobile" widget="phone"/>
-                <field name="email" widget="email"/>
+                <field name="email" widget="email" required="1"/>
               </group>
               
               <group string="Información de Entrega">
                 <field name="vehicle_type"/>
                 <field name="vehicle_plate"/>
                 <field name="is_delivery_person" invisible="1"/>
+              </group>
+            </group>
+
+            <group string="📄 Documentación" name="documentation">
+              <group>
+                <field name="document_type"/>
+                <field name="document_number"/>
+              </group>
+              <group>
+                <field name="document_expedition_date"/>
+                <field name="document_expiry_date"/>
+              </group>
+            </group>
+
+            <group string="📱 Conexión App Móvil" name="connection">
+              <group>
+                <field name="is_online" widget="boolean" readonly="1"/>
+                <field name="last_connection_display" readonly="1" string="Última Conexión"/>
+                <field name="last_connection" readonly="1" widget="datetime"/>
               </group>
             </group>
 
@@ -37,7 +54,6 @@
                 <field name="failed_deliveries" readonly="1"/>
               </group>
               <group>
-                <field name="avg_rating" readonly="1" widget="float"/>
                 <field name="avg_delivery_time" readonly="1" widget="float_time"/>
               </group>
             </group>
@@ -59,13 +75,12 @@
       <field name="arch" type="xml">
         <list string="Repartidores">
           <field name="name"/>
-          <field name="phone" widget="phone"/>
+          <field name="email" widget="email"/>
           <field name="vehicle_type"/>
+          <field name="is_online" widget="boolean" string="En Línea"/>
+          <field name="last_connection_display" string="Última Conexión"/>
           <field name="total_deliveries"/>
           <field name="completed_deliveries"/>
-          <field name="avg_rating" widget="float" decoration-success="avg_rating &gt;= 4" 
-                 decoration-warning="avg_rating &gt;= 3 and avg_rating &lt; 4"
-                 decoration-danger="avg_rating &lt; 3"/>
           <field name="avg_delivery_time" widget="float_time"/>
         </list>
       </field>
@@ -79,12 +94,13 @@
         <kanban>
           <field name="id"/>
           <field name="name"/>
-          <field name="phone"/>
+          <field name="email"/>
           <field name="total_deliveries"/>
           <field name="completed_deliveries"/>
-          <field name="avg_rating"/>
           <field name="vehicle_type"/>
           <field name="image_128"/>
+          <field name="is_online"/>
+          <field name="last_connection_display"/>
           
           <templates>
             <t t-name="card">
@@ -92,6 +108,10 @@
                 <div class="oe_kanban_content">
                   <div class="o_kanban_image">
                     <field name="image_128" widget="image" class="o_image_64_max"/>
+                    <div t-if="record.is_online.raw_value" class="o_kanban_image_fill_top" 
+                         style="position: absolute; top: 0; right: 0; background: #28a745; color: white; padding: 2px 5px; border-radius: 3px; font-size: 10px;">
+                      <i class="fa fa-circle"/> Online
+                    </div>
                   </div>
                   
                   <div class="oe_kanban_details">
@@ -100,15 +120,17 @@
                       <i class="fa fa-motorcycle"/> <field name="vehicle_type"/>
                     </div>
                     <div>
-                      <i class="fa fa-phone"/> <field name="phone"/>
+                      <i class="fa fa-envelope"/> <field name="email"/>
+                    </div>
+                    <div class="text-muted">
+                      <small>
+                        <i class="fa fa-clock-o"/> <field name="last_connection_display"/>
+                      </small>
                     </div>
                     <div class="mt-2">
                       <span class="badge badge-pill badge-info">
                         <field name="total_deliveries"/> entregas
                       </span>
-                    </div>
-                    <div t-if="record.avg_rating.raw_value > 0" class="mt-1">
-                      ⭐ <field name="avg_rating"/> / 5
                     </div>
                   </div>
                 </div>
@@ -126,10 +148,12 @@
       <field name="arch" type="xml">
         <search string="Buscar Repartidores">
           <field name="name"/>
-          <field name="phone"/>
+          <field name="email"/>
           <field name="vehicle_type"/>
           
           <filter string="Todos" name="all" domain="[]"/>
+          
+          <separator/>
           
           <group expand="0" string="Agrupar Por">
             <filter string="Tipo de Vehículo" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>

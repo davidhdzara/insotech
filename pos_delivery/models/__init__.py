@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import pos_delivery_order
+from . import pos_delivery_stage_time
 from . import pos_order
 from . import pos_config
 from . import delivery_zone

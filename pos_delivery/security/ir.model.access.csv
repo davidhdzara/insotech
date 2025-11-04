@@ -13,3 +13,6 @@ access_delivery_history_portal,delivery.history portal,model_delivery_history,ba
 access_pos_delivery_session_user,pos.delivery.session user,model_pos_delivery_session,point_of_sale.group_pos_user,1,1,1,1
 access_pos_delivery_session_portal,pos.delivery.session portal,model_pos_delivery_session,base.group_portal,1,1,1,0
 access_delivery_app_qr_wizard,delivery.app.qr.wizard,model_delivery_app_qr_wizard,point_of_sale.group_pos_user,1,1,1,1
+access_pos_delivery_stage_time_user,pos.delivery.stage.time user,model_pos_delivery_stage_time,point_of_sale.group_pos_user,1,0,0,0
+access_pos_delivery_stage_time_manager,pos.delivery.stage.time manager,model_pos_delivery_stage_time,point_of_sale.group_pos_manager,1,1,1,1
+access_pos_delivery_stage_time_portal,pos.delivery.stage.time portal,model_pos_delivery_stage_time,base.group_portal,1,0,0,0

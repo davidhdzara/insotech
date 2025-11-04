@@ -29,6 +29,7 @@
         'data/delivery_zones_data.xml',
         'views/pos_config_views.xml',
         'views/pos_delivery_order_views.xml',
+        'views/pos_delivery_stage_time_views.xml',
         'views/pos_order_views.xml',
         'views/res_partner_views.xml',
         'views/delivery_person_views.xml',
