@@ -16,7 +16,6 @@
           <field name="time_elapsed"/>
           <field name="order_total"/>
           <field name="delivery_cost"/>
-          <field name="rating"/>
           <field name="delivery_zone_id"/>
           
           <progressbar field="priority" colors='{"3": "danger", "2": "warning", "1": "success", "0": "muted"}'/>
@@ -65,11 +64,6 @@
                         + <field name="delivery_cost" widget="monetary"/> (envío)
                       </t>
                     </strong>
-                  </div>
-
-                  <!-- Rating -->
-                  <div t-if="record.rating.raw_value" class="mb-2">
-                    <field name="rating" widget="badge"/>
                   </div>
 
                   <!-- Footer with actions -->
@@ -129,7 +123,6 @@
                  decoration-danger="state=='failed'"/>
           <field name="time_elapsed" string="Tiempo"/>
           <field name="order_total" string="Monto" widget="monetary"/>
-          <field name="rating" optional="hide"/>
         </list>
       </field>
     </record>
@@ -161,10 +154,15 @@
             <!-- Smart Buttons -->
             <div class="oe_button_box" name="button_box">
               <button name="action_open_pos_order" type="object" 
-                      class="oe_stat_button" icon="fa-shopping-cart">
+                      class="oe_stat_button" icon="fa-shopping-cart"
+                      invisible="not pos_order_id">
                 <div class="o_field_widget o_stat_info">
                   <span class="o_stat_text">Orden POS</span>
                 </div>
+              </button>
+              <button name="action_view_stage_times" type="object" 
+                      class="oe_stat_button" icon="fa-clock-o">
+                <field name="stage_time_count" widget="statinfo" string="Stage Changes"/>
               </button>
             </div>
 
@@ -219,18 +217,52 @@
               <!-- Order Details -->
               <page string="Detalles de Orden" name="order_details">
                 <group>
-                  <group>
-                    <field name="pos_order_id" readonly="1"/>
-                    <field name="order_total" widget="monetary"/>
+                  <group string="Información de Orden">
+                    <field name="pos_order_id"/>
+                    <field name="order_total_manual" widget="monetary" 
+                           invisible="pos_order_id"
+                           placeholder="Ingrese el total manualmente"/>
+                    <field name="order_total" widget="monetary" readonly="1"/>
                     <field name="currency_id" invisible="1"/>
                   </group>
-                  <group>
+                  <group string="Fechas">
                     <field name="assigned_date" readonly="1"/>
                     <field name="in_transit_date" readonly="1"/>
                     <field name="total_delivery_time" widget="float_time" 
                            invisible="state != 'completed'"/>
                   </group>
                 </group>
+              </page>
+
+              <!-- Stage Time Summary -->
+              <page string="⏱️ Resumen de Tiempos" name="stage_times">
+                <group>
+                  <group string="⏱️ Tiempo por Estado">
+                    <field name="time_pending_display" string="⏳ Tiempo en Pendiente" readonly="1"/>
+                    <field name="time_assigned_display" string="👤 Tiempo en Asignado" readonly="1"/>
+                    <field name="time_transit_display" string="🚚 Tiempo en Tránsito" readonly="1"/>
+                    <field name="time_completed_display" string="✅ Tiempo Completado" readonly="1" 
+                           invisible="state != 'completed'"/>
+                  </group>
+                  <group string="📊 Datos Numéricos (minutos)">
+                    <field name="time_in_pending" readonly="1"/>
+                    <field name="time_in_assigned" readonly="1"/>
+                    <field name="time_in_transit" readonly="1"/>
+                    <field name="time_in_completed" readonly="1" invisible="state != 'completed'"/>
+                    <field name="total_delivery_time" readonly="1" invisible="state not in ['completed', 'failed']"/>
+                  </group>
+                </group>
+                
+                <separator string="Historial Detallado de Estados"/>
+                <field name="stage_time_ids" readonly="1">
+                  <list string="Stage Timeline" create="false" edit="false" delete="false">
+                    <field name="stage" string="Estado"/>
+                    <field name="start_time" string="Inicio"/>
+                    <field name="end_time" string="Fin"/>
+                    <field name="duration_display" string="Duración"/>
+                    <field name="is_active" string="Activo" widget="boolean_toggle"/>
+                  </list>
+                </field>
               </page>
 
               <!-- Comments -->
@@ -253,14 +285,6 @@
                   <group string="Firma">
                     <field name="signature" widget="image"/>
                   </group>
-                </group>
-              </page>
-
-              <!-- Rating -->
-              <page string="Calificación" name="rating" invisible="state != 'completed'">
-                <group>
-                  <field name="rating" widget="radio"/>
-                  <field name="rating_comment" placeholder="Comentarios del cliente..."/>
                 </group>
               </page>
 
@@ -322,7 +346,10 @@
           Crea tu primera orden de entrega
         </p>
         <p>
-          Las órdenes de entrega se crean desde las órdenes POS. Haz clic en el botón "Crear Entrega" en cualquier orden POS.
+          Las órdenes de entrega se pueden crear directamente o desde órdenes POS.
+        </p>
+        <p>
+          <b>Haz clic en "Crear"</b> para crear una orden de entrega manual.
         </p>
       </field>
     </record>

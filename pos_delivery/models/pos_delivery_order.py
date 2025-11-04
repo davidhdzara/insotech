@@ -14,8 +14,9 @@ class PosDeliveryOrder(models.Model):
     # Basic Information
     name = fields.Char(string='Número de Entrega', required=True, copy=False, readonly=True, 
                        default=lambda self: _('Nuevo'), tracking=True)
-    pos_order_id = fields.Many2one('pos.order', string='Orden POS', required=True, 
-                                    ondelete='cascade', tracking=True)
+    pos_order_id = fields.Many2one('pos.order', string='Orden POS', required=False, 
+                                    ondelete='cascade', tracking=True,
+                                    help="Orden POS relacionada (opcional)")
     
     # Customer Information
     partner_id = fields.Many2one('res.partner', string='Cliente', required=True, tracking=True)
@@ -59,6 +60,29 @@ class PosDeliveryOrder(models.Model):
                                         store=True, help="Tiempo desde la creación hasta la finalización")
     time_elapsed = fields.Char(string='Tiempo Transcurrido', compute='_compute_time_elapsed')
     
+    # Stage Time Tracking
+    stage_time_ids = fields.One2many('pos.delivery.stage.time', 'delivery_order_id', 
+                                     string='Stage Times', readonly=True)
+    stage_time_count = fields.Integer(string='Stage Changes', compute='_compute_stage_time_count')
+    
+    # Individual Stage Durations (computed from stage_time_ids)
+    time_in_pending = fields.Float(string='Time in Pending (min)', compute='_compute_stage_durations', 
+                                   store=True, help="Time spent in Pending state")
+    time_in_assigned = fields.Float(string='Time in Assigned (min)', compute='_compute_stage_durations', 
+                                    store=True, help="Time spent in Assigned state")
+    time_in_transit = fields.Float(string='Time in Transit (min)', compute='_compute_stage_durations', 
+                                   store=True, help="Time spent in In Transit state")
+    time_in_completed = fields.Float(string='Time in Completed (min)', compute='_compute_stage_durations', 
+                                     store=True, help="Time in final state")
+    time_in_failed = fields.Float(string='Time in Failed (min)', compute='_compute_stage_durations', 
+                                  store=True, help="Time in failed state")
+    
+    # Display fields for stage times
+    time_pending_display = fields.Char(string='Pending Duration', compute='_compute_stage_durations_display')
+    time_assigned_display = fields.Char(string='Assigned Duration', compute='_compute_stage_durations_display')
+    time_transit_display = fields.Char(string='Transit Duration', compute='_compute_stage_durations_display')
+    time_completed_display = fields.Char(string='Completed Duration', compute='_compute_stage_durations_display')
+    
     # Comments and Notes
     warehouse_notes = fields.Text(string='Notas del Almacén', help="Notas internas del personal del almacén")
     delivery_notes = fields.Text(string='Notas del Repartidor', help="Notas del repartidor")
@@ -69,20 +93,15 @@ class PosDeliveryOrder(models.Model):
     delivery_photo_filename = fields.Char(string='Nombre del Archivo de Foto')
     signature = fields.Binary(string='Firma del Cliente', attachment=True)
     
-    # Rating
-    rating = fields.Selection([
-        ('1', '⭐'),
-        ('2', '⭐⭐'),
-        ('3', '⭐⭐⭐'),
-        ('4', '⭐⭐⭐⭐'),
-        ('5', '⭐⭐⭐⭐⭐')
-    ], string='Calificación del Cliente', tracking=True)
-    rating_comment = fields.Text(string='Comentario de Calificación')
-    
-    # Related Fields from POS Order
-    order_total = fields.Monetary(related='pos_order_id.amount_total', string='Total de Orden', 
-                                   currency_field='currency_id', readonly=True)
-    currency_id = fields.Many2one(related='pos_order_id.currency_id', readonly=True)
+    # Related Fields from POS Order or Manual Entry
+    order_total = fields.Monetary(string='Total de Orden', currency_field='currency_id', 
+                                   compute='_compute_order_total', store=True, readonly=False,
+                                   help="Total de la orden (desde POS o manual)")
+    order_total_manual = fields.Monetary(string='Total Manual', currency_field='currency_id',
+                                         help="Total manual cuando no hay orden POS")
+    currency_id = fields.Many2one('res.currency', string='Moneda', 
+                                   compute='_compute_currency', store=True, readonly=False,
+                                   default=lambda self: self.env.company.currency_id)
     
     # Color for Kanban
     color = fields.Integer(string='Índice de Color', compute='_compute_color', store=True)
@@ -106,7 +125,12 @@ class PosDeliveryOrder(models.Model):
             if not vals.get('estimated_delivery_time') and zone.estimated_time:
                 vals['estimated_delivery_time'] = fields.Datetime.now() + timedelta(minutes=zone.estimated_time)
         
-        return super(PosDeliveryOrder, self).create(vals)
+        record = super(PosDeliveryOrder, self).create(vals)
+        
+        # Start tracking time in initial state
+        record._start_stage_timer(vals.get('state', 'pending'))
+        
+        return record
 
     @api.depends('state', 'priority')
     def _compute_color(self):
@@ -122,6 +146,24 @@ class PosDeliveryOrder(models.Model):
                 record.color = 8   # Yellow (high)
             else:
                 record.color = 0   # Default
+    
+    @api.depends('pos_order_id', 'pos_order_id.amount_total', 'order_total_manual')
+    def _compute_order_total(self):
+        """Compute order total from POS order or manual entry"""
+        for record in self:
+            if record.pos_order_id:
+                record.order_total = record.pos_order_id.amount_total
+            else:
+                record.order_total = record.order_total_manual or 0.0
+    
+    @api.depends('pos_order_id', 'pos_order_id.currency_id')
+    def _compute_currency(self):
+        """Compute currency from POS order or company"""
+        for record in self:
+            if record.pos_order_id and record.pos_order_id.currency_id:
+                record.currency_id = record.pos_order_id.currency_id
+            elif not record.currency_id:
+                record.currency_id = self.env.company.currency_id
 
     @api.depends('create_date', 'completed_date')
     def _compute_delivery_time(self):
@@ -153,24 +195,90 @@ class PosDeliveryOrder(models.Model):
                     record.time_elapsed = f"{minutes}m"
             else:
                 record.time_elapsed = "0m"
+    
+    @api.depends('stage_time_ids')
+    def _compute_stage_time_count(self):
+        """Count stage time entries"""
+        for record in self:
+            record.stage_time_count = len(record.stage_time_ids)
+    
+    @api.depends('stage_time_ids.duration', 'stage_time_ids.stage', 'stage_time_ids.is_active')
+    def _compute_stage_durations(self):
+        """Calculate total time spent in each stage"""
+        for record in self:
+            # Initialize all times to 0
+            record.time_in_pending = 0
+            record.time_in_assigned = 0
+            record.time_in_transit = 0
+            record.time_in_completed = 0
+            record.time_in_failed = 0
+            
+            # Sum up times for each stage
+            for stage_time in record.stage_time_ids:
+                if stage_time.stage == 'pending':
+                    record.time_in_pending += stage_time.duration
+                elif stage_time.stage == 'assigned':
+                    record.time_in_assigned += stage_time.duration
+                elif stage_time.stage == 'in_transit':
+                    record.time_in_transit += stage_time.duration
+                elif stage_time.stage == 'completed':
+                    record.time_in_completed += stage_time.duration
+                elif stage_time.stage == 'failed':
+                    record.time_in_failed += stage_time.duration
+    
+    @api.depends('time_in_pending', 'time_in_assigned', 'time_in_transit', 'time_in_completed')
+    def _compute_stage_durations_display(self):
+        """Format stage durations for display"""
+        for record in self:
+            record.time_pending_display = record._format_duration(record.time_in_pending)
+            record.time_assigned_display = record._format_duration(record.time_in_assigned)
+            record.time_transit_display = record._format_duration(record.time_in_transit)
+            record.time_completed_display = record._format_duration(record.time_in_completed)
+    
+    def _format_duration(self, minutes):
+        """Format duration in minutes to human readable format"""
+        if minutes >= 1440:  # More than 24 hours
+            days = int(minutes // 1440)
+            hours = int((minutes % 1440) // 60)
+            mins = int(minutes % 60)
+            return f"{days}d {hours}h {mins}m"
+        elif minutes >= 60:  # More than 1 hour
+            hours = int(minutes // 60)
+            mins = int(minutes % 60)
+            return f"{hours}h {mins}m"
+        else:
+            return f"{int(minutes)}m"
 
     def write(self, vals):
-        """Auto-update state when delivery person is assigned"""
-        result = super(PosDeliveryOrder, self).write(vals)
-        
-        # Auto-assign when delivery person is set and state is pending
-        if vals.get('delivery_person_id') and self.state == 'pending':
-            super(PosDeliveryOrder, self).write({
-                'state': 'assigned',
-                'assigned_date': fields.Datetime.now()
-            })
-        
-        # Auto-reset to pending if delivery person is removed and state is assigned
-        if 'delivery_person_id' in vals and not vals['delivery_person_id'] and self.state == 'assigned':
-            super(PosDeliveryOrder, self).write({
-                'state': 'pending',
-                'assigned_date': False
-            })
+        """Auto-update state when delivery person is assigned and track stage changes"""
+        # Track state changes for stage timing
+        for record in self:
+            old_state = record.state
+            
+            result = super(PosDeliveryOrder, record).write(vals)
+            
+            # If state changed, update stage timers
+            if 'state' in vals and vals['state'] != old_state:
+                record._end_stage_timer(old_state)
+                record._start_stage_timer(vals['state'])
+            
+            # Auto-assign when delivery person is set and state is pending
+            if vals.get('delivery_person_id') and record.state == 'pending':
+                super(PosDeliveryOrder, record).write({
+                    'state': 'assigned',
+                    'assigned_date': fields.Datetime.now()
+                })
+                record._end_stage_timer('pending')
+                record._start_stage_timer('assigned')
+            
+            # Auto-reset to pending if delivery person is removed and state is assigned
+            if 'delivery_person_id' in vals and not vals['delivery_person_id'] and record.state == 'assigned':
+                super(PosDeliveryOrder, record).write({
+                    'state': 'pending',
+                    'assigned_date': False
+                })
+                record._end_stage_timer('assigned')
+                record._start_stage_timer('pending')
         
         return result
     
@@ -253,6 +361,45 @@ class PosDeliveryOrder(models.Model):
         """Generate secure token for portal access"""
         import secrets
         return secrets.token_urlsafe(32)
+    
+    def _start_stage_timer(self, stage):
+        """Start timing a new stage"""
+        self.ensure_one()
+        self.env['pos.delivery.stage.time'].sudo().create({
+            'delivery_order_id': self.id,
+            'stage': stage,
+            'start_time': fields.Datetime.now(),
+            'is_active': True,
+        })
+    
+    def _end_stage_timer(self, stage):
+        """End timing for a stage"""
+        self.ensure_one()
+        # Find active stage time record for this stage
+        active_stage = self.env['pos.delivery.stage.time'].search([
+            ('delivery_order_id', '=', self.id),
+            ('stage', '=', stage),
+            ('is_active', '=', True)
+        ], limit=1)
+        
+        if active_stage:
+            active_stage.sudo().write({
+                'end_time': fields.Datetime.now(),
+                'is_active': False,
+            })
+    
+    def action_view_stage_times(self):
+        """Open stage times view"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Stage Time Details'),
+            'res_model': 'pos.delivery.stage.time',
+            'view_mode': 'list,form',
+            'domain': [('delivery_order_id', '=', self.id)],
+            'context': {'default_delivery_order_id': self.id},
+            'target': 'current',
+        }
 
     def action_open_pos_order(self):
         """Open related POS order"""

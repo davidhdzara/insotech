@@ -28,6 +28,8 @@ class DeliveryAPI(http.Controller):
         if session:
             # Update last activity
             session.sudo().write({'last_activity': datetime.now()})
+            # Update delivery person last connection
+            session.delivery_person_id.sudo().write({'last_connection': datetime.now()})
             return session.delivery_person_id
         
         return None
@@ -154,6 +156,11 @@ class DeliveryAPI(http.Controller):
                 'last_activity': datetime.now()
             })
             
+            # Update last connection time for delivery person
+            partner.sudo().write({
+                'last_connection': datetime.now()
+            })
+            
             return self._json_response({
                 'token': token,
                 'expires_at': expires_at.isoformat(),
@@ -161,11 +168,9 @@ class DeliveryAPI(http.Controller):
                     'id': partner.id,
                     'name': partner.name,
                     'email': partner.email,
-                    'phone': partner.phone or partner.mobile,
                     'image': partner.image_128.decode('utf-8') if partner.image_128 else None,
                     'vehicle_type': partner.vehicle_type,
-                    'delivery_count': partner.total_deliveries,
-                    'rating': partner.avg_rating
+                    'delivery_count': partner.total_deliveries
                 }
             })
             
@@ -239,7 +244,9 @@ class DeliveryAPI(http.Controller):
                      'delivery_instructions': order.customer_notes or '',
                      'warehouse_comment': order.warehouse_notes or '',
                      'delivery_person_comment': order.delivery_notes or '',
-                     'amount_total': float(order.pos_order_id.amount_total) if order.pos_order_id else 0,
+                     'order_total': float(order.order_total) if order.order_total else 0.0,
+                     'delivery_cost': float(order.delivery_cost) if order.delivery_cost else 0.0,
+                     'currency_symbol': order.currency_id.symbol if order.currency_id else '$',
                      'create_date': order.create_date.isoformat(),
                      'assigned_at': order.assigned_date.isoformat() if order.assigned_date else None,
                      'in_transit_at': order.in_transit_date.isoformat() if order.in_transit_date else None
@@ -283,6 +290,19 @@ class DeliveryAPI(http.Controller):
                         'price_subtotal': float(line.price_subtotal)
                     })
             
+            # Get chatter messages
+            messages = []
+            for message in order.message_ids.sorted(lambda m: m.date, reverse=True):
+                # Only include notes/comments (not system notifications)
+                if message.message_type == 'comment':
+                    messages.append({
+                        'id': message.id,
+                        'author': message.author_id.name if message.author_id else 'Sistema',
+                        'date': message.date.isoformat() if message.date else None,
+                        'body': message.body or '',
+                        'subject': message.subject or ''
+                    })
+            
             order_data = {
                 'id': order.id,
                 'name': order.name,
@@ -298,14 +318,17 @@ class DeliveryAPI(http.Controller):
                  'delivery_instructions': order.customer_notes or '',
                  'warehouse_comment': order.warehouse_notes or '',
                  'delivery_person_comment': order.delivery_notes or '',
-                 'amount_total': float(order.pos_order_id.amount_total) if order.pos_order_id else 0,
+                 'order_total': float(order.order_total) if order.order_total else 0.0,
+                 'delivery_cost': float(order.delivery_cost) if order.delivery_cost else 0.0,
+                 'total_amount': float(order.order_total + order.delivery_cost) if (order.order_total or order.delivery_cost) else 0.0,
+                 'currency_symbol': order.currency_id.symbol if order.currency_id else '$',
                  'order_lines': order_lines,
+                 'messages': messages,
                  'create_date': order.create_date.isoformat(),
                  'assigned_at': order.assigned_date.isoformat() if order.assigned_date else None,
                  'in_transit_at': order.in_transit_date.isoformat() if order.in_transit_date else None,
                  'delivered_at': order.completed_date.isoformat() if order.completed_date else None,
-                 'delivery_photo': order.delivery_photo.decode('utf-8') if order.delivery_photo else None,
-                 'customer_rating': order.rating
+                 'delivery_photo': order.delivery_photo.decode('utf-8') if order.delivery_photo else None
             }
             
             return self._json_response(order_data)
@@ -360,16 +383,15 @@ class DeliveryAPI(http.Controller):
                 if not comment:
                     return self._json_response(error='El comentario no puede estar vacío', status=400)
                 
-                current_comment = order.delivery_notes or ''
-                timestamp = datetime.now().strftime('%d/%m/%Y %H:%M')
-                new_comment = f"[{timestamp}] {comment}"
+                # Add comment to chatter
+                order.message_post(
+                    body=comment,
+                    subject=f'Comentario del Repartidor: {delivery_person.name}',
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_note',
+                    author_id=delivery_person.id
+                )
                 
-                if current_comment:
-                    updated_comment = f"{current_comment}\n{new_comment}"
-                else:
-                    updated_comment = new_comment
-                
-                order.write({'delivery_notes': updated_comment})
                 message = 'Comentario agregado exitosamente'
                 
             else:

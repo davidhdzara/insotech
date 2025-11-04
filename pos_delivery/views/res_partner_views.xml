@@ -27,8 +27,18 @@
                 <field name="total_deliveries" string="Total Entregas" readonly="1"/>
                 <field name="completed_deliveries" string="Completadas" readonly="1"/>
                 <field name="failed_deliveries" string="Fallidas" readonly="1"/>
-                <field name="avg_rating" string="Calificación Prom." readonly="1" widget="float"/>
                 <field name="avg_delivery_time" string="Tiempo Prom. (min)" readonly="1" widget="float_time"/>
+              </group>
+            </group>
+            
+            <group string="Documentación">
+              <group>
+                <field name="document_type" string="Tipo de Documento"/>
+                <field name="document_number" string="Número de Documento"/>
+              </group>
+              <group>
+                <field name="document_expedition_date" string="Fecha de Expedición"/>
+                <field name="document_expiry_date" string="Vigencia"/>
               </group>
             </group>
             

@@ -1,0 +1,78 @@
+<odoo>
+  <data>
+    
+    <!-- List View for Stage Times -->
+    <record id="view_pos_delivery_stage_time_list" model="ir.ui.view">
+      <field name="name">pos.delivery.stage.time.list</field>
+      <field name="model">pos.delivery.stage.time</field>
+      <field name="arch" type="xml">
+        <list string="Stage Time Details" create="false" edit="false" delete="false">
+          <field name="stage" string="Estado"/>
+          <field name="start_time" string="Inicio"/>
+          <field name="end_time" string="Fin"/>
+          <field name="duration_display" string="Duración"/>
+          <field name="duration" string="Minutos" optional="hide"/>
+          <field name="duration_hours" string="Horas" optional="hide"/>
+          <field name="is_active" string="Activo" widget="boolean_toggle"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- Form View for Stage Times -->
+    <record id="view_pos_delivery_stage_time_form" model="ir.ui.view">
+      <field name="name">pos.delivery.stage.time.form</field>
+      <field name="model">pos.delivery.stage.time</field>
+      <field name="arch" type="xml">
+        <form string="Stage Time Detail" create="false" edit="false" delete="false">
+          <sheet>
+            <group>
+              <group>
+                <field name="delivery_order_id" readonly="1"/>
+                <field name="stage" readonly="1"/>
+                <field name="is_active" widget="boolean_toggle" readonly="1"/>
+              </group>
+              <group>
+                <field name="start_time" readonly="1"/>
+                <field name="end_time" readonly="1"/>
+                <field name="duration_display" readonly="1"/>
+              </group>
+            </group>
+            <group>
+              <group>
+                <field name="duration" string="Duration (minutes)" readonly="1"/>
+                <field name="duration_hours" string="Duration (hours)" readonly="1"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Pivot View for Analysis -->
+    <record id="view_pos_delivery_stage_time_pivot" model="ir.ui.view">
+      <field name="name">pos.delivery.stage.time.pivot</field>
+      <field name="model">pos.delivery.stage.time</field>
+      <field name="arch" type="xml">
+        <pivot string="Stage Time Analysis">
+          <field name="stage" type="row"/>
+          <field name="duration" type="measure"/>
+          <field name="duration_hours" type="measure"/>
+        </pivot>
+      </field>
+    </record>
+
+    <!-- Graph View for Visualization -->
+    <record id="view_pos_delivery_stage_time_graph" model="ir.ui.view">
+      <field name="name">pos.delivery.stage.time.graph</field>
+      <field name="model">pos.delivery.stage.time</field>
+      <field name="arch" type="xml">
+        <graph string="Stage Time Chart" type="bar">
+          <field name="stage"/>
+          <field name="duration" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+  </data>
+</odoo>
+
