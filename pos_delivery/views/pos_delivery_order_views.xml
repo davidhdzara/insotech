@@ -153,16 +153,38 @@
           <sheet>
             <!-- Smart Buttons -->
             <div class="oe_button_box" name="button_box">
-              <button name="action_open_pos_order" type="object" 
+              <!-- View POS Order Button -->
+              <button name="action_view_pos_order" type="object" 
                       class="oe_stat_button" icon="fa-shopping-cart"
                       invisible="not pos_order_id">
                 <div class="o_field_widget o_stat_info">
-                  <span class="o_stat_text">Orden POS</span>
+                  <span class="o_stat_text">Ver Orden POS</span>
                 </div>
               </button>
+              
+              <!-- Invoice Buttons -->
+              <button name="action_view_invoice" type="object" 
+                      class="oe_stat_button" icon="fa-file-text-o"
+                      invisible="not pos_order_id"
+                      title="Ver la factura asociada a esta orden">
+                <div class="o_field_widget o_stat_info">
+                  <span class="o_stat_text">Ver Factura</span>
+                </div>
+              </button>
+              
+              <button name="action_create_invoice" type="object" 
+                      class="oe_stat_button" icon="fa-plus-circle"
+                      invisible="not pos_order_id"
+                      title="Crear factura para esta orden">
+                <div class="o_field_widget o_stat_info">
+                  <span class="o_stat_text">Crear Factura</span>
+                </div>
+              </button>
+              
+              <!-- Stage Times Button -->
               <button name="action_view_stage_times" type="object" 
                       class="oe_stat_button" icon="fa-clock-o">
-                <field name="stage_time_count" widget="statinfo" string="Stage Changes"/>
+                <field name="stage_time_count" widget="statinfo" string="Cambios de Estado"/>
               </button>
             </div>
 
