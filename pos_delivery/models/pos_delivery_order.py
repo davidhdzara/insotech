@@ -34,7 +34,7 @@ class PosDeliveryOrder(models.Model):
     delivery_payment_method = fields.Selection([
         ('cash', 'Efectivo'),
         ('transfer', 'Transferencia')
-    ], string='Método de Pago de Envío', tracking=True, help="Método de pago del costo de envío")
+    ], string='Método de Pago Envío', tracking=True, help="Método de pago del costo de envío")
     
     # Status and Priority
     state = fields.Selection([
