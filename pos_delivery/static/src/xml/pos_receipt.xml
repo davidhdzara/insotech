@@ -38,14 +38,14 @@
                             <t t-esc="props.data.partner.street2"/><br/>
                         </t>
                         <t t-if="props.data.partner.city or props.data.partner.state_id or props.data.partner.zip">
-                            <t t-if="props.data.partner.city">
-                                <t t-esc="props.data.partner.city"/>
-                            </t>
-                            <t t-if="props.data.partner.state_id">
-                                , <t t-esc="props.data.partner.state_id"/>
-                            </t>
-                            <t t-if="props.data.partner.zip">
-                                - <t t-esc="props.data.partner.zip"/>
+                        <t t-if="props.data.partner.city">
+                            <t t-esc="props.data.partner.city"/>
+                        </t>
+                        <t t-if="props.data.partner.state_id">
+                            , <t t-esc="props.data.partner.state_id"/>
+                        </t>
+                        <t t-if="props.data.partner.zip">
+                            - <t t-esc="props.data.partner.zip"/>
                             </t>
                             <br/>
                         </t>
@@ -61,7 +61,7 @@
                 
                 <div t-if="props.data.partner.mobile">
                     <strong>Celular:</strong> <t t-esc="props.data.partner.mobile"/>
-                </div>
+                    </div>
                 
                 <div class="text-center">--------------------------------</div>
                 <br/>

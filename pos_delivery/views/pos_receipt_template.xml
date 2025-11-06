@@ -110,22 +110,40 @@
                                     
                                     <!-- Totals -->
                                     <div class="mb-3">
-                                        <div class="d-flex justify-content-between">
-                                            <strong>TOTAL:</strong>
+                                        <div class="text-center">--------------------------------</div>
+                                        
+                                        <!-- Payment Methods -->
+                                        <t t-if="receipt_data.get('paymentlines')">
+                                            <div class="d-flex justify-content-between mb-2">
+                                            <strong>Total a pagar:</strong>
                                             <strong>$<t t-esc="'{:,.2f}'.format(receipt_data.get('amount_total', 0))"/></strong>
                                         </div>
+                                            <t t-foreach="receipt_data.get('paymentlines', [])" t-as="payment">
+                                                <div class="d-flex justify-content-between">
+                                                    <span><t t-esc="payment.get('name', '')"/></span>
+                                                    <span>$<t t-esc="'{:,.2f}'.format(payment.get('amount', 0))"/></span>
+                                                </div>
+                                            </t>
+                                        </t>                                        
                                         
-                                        <t t-foreach="receipt_data.get('paymentlines', [])" t-as="payment">
-                                            <div class="d-flex justify-content-between">
-                                                <span><t t-esc="payment.get('name', '')"/></span>
-                                                <span>$<t t-esc="'{:,.2f}'.format(payment.get('amount', 0))"/></span>
-                                            </div>
-                                        </t>
-                                        
-                                        <div class="d-flex justify-content-between" t-if="receipt_data.get('order_change', 0) > 0.01">
+                                        <!-- Change -->
+                                        <div class="d-flex justify-content-between mb-2" t-if="receipt_data.get('order_change', 0) > 0.01">
                                             <span>Cambio:</span>
                                             <span>$<t t-esc="'{:,.2f}'.format(receipt_data.get('order_change', 0))"/></span>
                                         </div>
+                                        
+                                        <!-- Delivery Cost and Payment Method -->
+                                        <t t-if="receipt_data.get('delivery_cost', 0) > 0">
+                                            <div class="text-center mt-2 mb-2">--------------------------------</div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Costo de Envío:</span>
+                                                <span>$<t t-esc="'{:,.2f}'.format(receipt_data.get('delivery_cost', 0))"/></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between" t-if="receipt_data.get('delivery_payment_method')">
+                                                <span>Método de Pago de Envío:</span>
+                                                <span><t t-esc="receipt_data.get('delivery_payment_method', '')"/></span>
+                                            </div>
+                                        </t>
                                     </div>
                                     
                                     <hr/>
