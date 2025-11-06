@@ -15,29 +15,6 @@
             </div>
 
             <group>
-              <group string="📸 Configuración de Foto y Firma">
-                <field name="enable_photo_required" widget="boolean_toggle"/>
-                <field name="enable_signature_required" widget="boolean_toggle"/>
-              </group>
-              
-              <group string="📍 Configuración de Geolocalización">
-                <field name="enable_geolocation" widget="boolean_toggle"/>
-                <field name="default_map_zoom"/>
-              </group>
-            </group>
-
-            <group>
-              <group string="🗺️ Configuración de Zonas">
-                <field name="enable_zone_required" widget="boolean_toggle"/>
-                <field name="default_delivery_time" widget="integer"/>
-              </group>
-              
-              <group string="⭐ Configuración de Calificaciones">
-                <field name="enable_rating" widget="boolean_toggle"/>
-              </group>
-            </group>
-
-            <group>
               <group string="🔢 Configuración del Consecutivo">
                 <field name="sequence_prefix" placeholder="ej: #, DEL-, ORD"/>
                 <field name="sequence_padding" placeholder="ej: 1, 3, 5"/>
@@ -51,26 +28,6 @@
                         string="Aplicar Configuración" 
                         class="btn-primary"
                         icon="fa-refresh"/>
-              </group>
-            </group>
-
-            <group>
-              <group string="🤖 Automatización">
-                <field name="enable_auto_assignment" widget="boolean_toggle"/>
-                <div colspan="2" class="alert alert-info" role="alert"
-                     invisible="not enable_auto_assignment">
-                  <i class="fa fa-info-circle"/> 
-                  La asignación automática asignará nuevas entregas a repartidores disponibles según su carga de trabajo y zona.
-                </div>
-              </group>
-              
-              <group string="🔔 Notificaciones">
-                <field name="enable_notifications" widget="boolean_toggle"/>
-                <div colspan="2" class="alert alert-info" role="alert"
-                     invisible="not enable_notifications">
-                  <i class="fa fa-bell"/> 
-                  Se enviarán notificaciones a los usuarios relevantes cuando cambie el estado de la entrega.
-                </div>
               </group>
             </group>
 

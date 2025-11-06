@@ -162,23 +162,13 @@
                 </div>
               </button>
               
-              <!-- View Invoice Button (only if invoice exists) -->
-              <button name="action_view_invoice" type="object" 
+              <!-- View Receipt Button -->
+              <button name="action_view_receipt" type="object" 
                       class="oe_stat_button" icon="fa-file-text-o"
-                      invisible="not pos_order_id or not has_invoice"
-                      title="Ver la factura asociada a esta orden">
+                      invisible="not pos_order_id"
+                      title="Ver la tirilla de esta orden">
                 <div class="o_field_widget o_stat_info">
-                  <span class="o_stat_text">Ver Factura</span>
-                </div>
-              </button>
-              
-              <!-- Create Invoice Button (only if invoice doesn't exist) -->
-              <button name="action_create_invoice" type="object" 
-                      class="oe_stat_button" icon="fa-plus-circle"
-                      invisible="not pos_order_id or has_invoice"
-                      title="Crear factura para esta orden">
-                <div class="o_field_widget o_stat_info">
-                  <span class="o_stat_text">Crear Factura</span>
+                  <span class="o_stat_text">Ver Tirilla</span>
                 </div>
               </button>
               

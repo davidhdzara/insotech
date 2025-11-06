@@ -374,52 +374,22 @@ class PosDeliveryOrder(models.Model):
         import secrets
         return secrets.token_urlsafe(32)
     
-    # ==================== Invoice Management ====================
+    # ==================== Receipt Management ====================
     
-    def action_view_invoice(self):
-        """View the invoice associated with the POS order"""
+    def action_view_receipt(self):
+        """View the POS receipt for this delivery order"""
         self.ensure_one()
         
         if not self.pos_order_id:
             raise UserError(_('Esta orden de domicilio no tiene una orden POS asociada.'))
         
-        # Get the invoice from the POS order
-        invoice = self.pos_order_id.account_move
-        
-        if not invoice:
-            raise UserError(_('La orden POS no tiene una factura generada aún. '
-                            'Use el botón "Crear Factura" para generarla.'))
-        
+        # Return action to display the receipt in a new window
         return {
-            'name': _('Factura'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'res_id': invoice.id,
-            'view_mode': 'form',
-            'target': 'current',
+            'name': _('Tirilla de la Orden'),
+            'type': 'ir.actions.act_url',
+            'url': '/pos/receipt/html/' + str(self.pos_order_id.id),
+            'target': 'new',
         }
-    
-    def action_create_invoice(self):
-        """Create an invoice for the associated POS order"""
-        self.ensure_one()
-        
-        if not self.pos_order_id:
-            raise UserError(_('Esta orden de domicilio no tiene una orden POS asociada.'))
-        
-        # Check if invoice already exists
-        if self.pos_order_id.account_move:
-            raise UserError(_('La orden POS ya tiene una factura generada. '
-                            'Use el botón "Ver Factura" para verla.'))
-        
-        # Check if POS order has a partner
-        if not self.pos_order_id.partner_id:
-            raise UserError(_('La orden POS debe tener un cliente asignado para poder facturar.'))
-        
-        # Create the invoice
-        self.pos_order_id.action_pos_order_invoice()
-        
-        # Return action to view the created invoice
-        return self.action_view_invoice()
     
     def action_view_pos_order(self):
         """View the associated POS order"""
