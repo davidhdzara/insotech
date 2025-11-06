@@ -470,16 +470,26 @@ class DeliveryAPI(http.Controller):
             # Get base URL
             base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             
+            # Get company safely - try multiple sources
+            company = None
+            if hasattr(delivery_order, 'company_id') and delivery_order.company_id:
+                company = delivery_order.company_id
+            elif delivery_order.pos_order_id and delivery_order.pos_order_id.company_id:
+                company = delivery_order.pos_order_id.company_id
+            else:
+                # Fallback to current user's company or main company
+                company = request.env.user.company_id or request.env['res.company'].sudo().search([], limit=1)
+            
             # Initialize receipt data
             receipt_data = {
                 'name': '',
                 'date': '',
                 'cashier': '',
                 'company': {
-                    'name': delivery_order.company_id.name,
-                    'street': delivery_order.company_id.street or '',
-                    'phone': delivery_order.company_id.phone or '',
-                    'email': delivery_order.company_id.email or '',
+                    'name': company.name if company else '',
+                    'street': company.street if company else '',
+                    'phone': company.phone if company else '',
+                    'email': company.email if company else '',
                 },
                 'partner': None,
                 'orderlines': [],
@@ -503,7 +513,7 @@ class DeliveryAPI(http.Controller):
                 receipt_data['date'] = pos_order.date_order.strftime('%Y-%m-%d %H:%M:%S') if pos_order.date_order else ''
                 receipt_data['cashier'] = pos_order.user_id.name if pos_order.user_id else ''
                 receipt_data['amount_total'] = pos_order.amount_total
-                receipt_data['footer'] = pos_order.config_id.receipt_footer or ''
+                receipt_data['footer'] = pos_order.config_id.receipt_footer if pos_order.config_id else ''
                 
                 # Add partner data from POS order
                 if pos_order.partner_id:
@@ -518,8 +528,8 @@ class DeliveryAPI(http.Controller):
                         'phone': pos_order.partner_id.phone or '',
                         'mobile': pos_order.partner_id.mobile or '',
                         'vat': pos_order.partner_id.vat or '',
-                        'document_type': pos_order.partner_id.document_type or '',
-                        'document_number': pos_order.partner_id.document_number or '',
+                        'document_type': pos_order.partner_id.document_type if hasattr(pos_order.partner_id, 'document_type') else '',
+                        'document_number': pos_order.partner_id.document_number if hasattr(pos_order.partner_id, 'document_number') else '',
                     }
                 
                 # Add order lines from POS
@@ -562,8 +572,8 @@ class DeliveryAPI(http.Controller):
                         'phone': delivery_order.delivery_phone or '',
                         'mobile': '',
                         'vat': delivery_order.partner_id.vat or '',
-                        'document_type': delivery_order.partner_id.document_type or '',
-                        'document_number': delivery_order.partner_id.document_number or '',
+                        'document_type': delivery_order.partner_id.document_type if hasattr(delivery_order.partner_id, 'document_type') else '',
+                        'document_number': delivery_order.partner_id.document_number if hasattr(delivery_order.partner_id, 'document_number') else '',
                     }
                 
                 # For manual delivery orders without POS, we don't have itemized lines
@@ -584,6 +594,8 @@ class DeliveryAPI(http.Controller):
             
         except Exception as e:
             _logger.error(f"Delivery receipt view error: {str(e)}")
+            import traceback
+            _logger.error(f"Traceback: {traceback.format_exc()}")
             return request.render('pos_delivery.receipt_error', {'error': str(e)})
 
     @http.route('/pos/receipt/html/<int:order_id>', type='http', auth='user', methods=['GET'])
