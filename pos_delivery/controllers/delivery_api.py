@@ -457,6 +457,135 @@ class DeliveryAPI(http.Controller):
                 status=500
             )
 
+    @http.route('/pos/delivery/receipt/html/<int:delivery_order_id>', type='http', auth='user', methods=['GET'])
+    def view_delivery_receipt(self, delivery_order_id):
+        """Display receipt for delivery order (with or without POS order)"""
+        try:
+            # Get the delivery order
+            delivery_order = request.env['pos.delivery.order'].browse(delivery_order_id)
+            
+            if not delivery_order.exists():
+                return request.render('pos_delivery.receipt_not_found')
+            
+            # Get base URL
+            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            
+            # Initialize receipt data
+            receipt_data = {
+                'name': '',
+                'date': '',
+                'cashier': '',
+                'company': {
+                    'name': delivery_order.company_id.name,
+                    'street': delivery_order.company_id.street or '',
+                    'phone': delivery_order.company_id.phone or '',
+                    'email': delivery_order.company_id.email or '',
+                },
+                'partner': None,
+                'orderlines': [],
+                'amount_total': 0,
+                'paymentlines': [],
+                'order_change': 0,
+                'footer': '',
+                'delivery_cost': delivery_order.delivery_cost or 0,
+                'delivery_payment_method': '',
+            }
+            
+            # Get delivery payment method label
+            if delivery_order.delivery_payment_method:
+                payment_method_dict = dict(delivery_order._fields['delivery_payment_method'].selection)
+                receipt_data['delivery_payment_method'] = payment_method_dict.get(delivery_order.delivery_payment_method, '')
+            
+            # If there's a POS order, use its data
+            if delivery_order.pos_order_id:
+                pos_order = delivery_order.pos_order_id
+                receipt_data['name'] = pos_order.name
+                receipt_data['date'] = pos_order.date_order.strftime('%Y-%m-%d %H:%M:%S') if pos_order.date_order else ''
+                receipt_data['cashier'] = pos_order.user_id.name if pos_order.user_id else ''
+                receipt_data['amount_total'] = pos_order.amount_total
+                receipt_data['footer'] = pos_order.config_id.receipt_footer or ''
+                
+                # Add partner data from POS order
+                if pos_order.partner_id:
+                    receipt_data['partner'] = {
+                        'name': pos_order.partner_id.name or '',
+                        'street': pos_order.partner_id.street or '',
+                        'street2': pos_order.partner_id.street2 or '',
+                        'city': pos_order.partner_id.city or '',
+                        'state_id': pos_order.partner_id.state_id.name if pos_order.partner_id.state_id else '',
+                        'zip': pos_order.partner_id.zip or '',
+                        'country_id': pos_order.partner_id.country_id.name if pos_order.partner_id.country_id else '',
+                        'phone': pos_order.partner_id.phone or '',
+                        'mobile': pos_order.partner_id.mobile or '',
+                        'vat': pos_order.partner_id.vat or '',
+                        'document_type': pos_order.partner_id.document_type or '',
+                        'document_number': pos_order.partner_id.document_number or '',
+                    }
+                
+                # Add order lines from POS
+                for line in pos_order.lines:
+                    receipt_data['orderlines'].append({
+                        'product_name': line.product_id.display_name,
+                        'quantity': line.qty,
+                        'price': line.price_unit,
+                        'price_display': line.price_subtotal_incl,
+                    })
+                
+                # Add payment lines from POS
+                for payment in pos_order.payment_ids:
+                    receipt_data['paymentlines'].append({
+                        'name': payment.payment_method_id.name,
+                        'amount': payment.amount,
+                    })
+                
+                # Calculate change
+                total_paid = sum(p.amount for p in pos_order.payment_ids)
+                receipt_data['order_change'] = max(0, total_paid - pos_order.amount_total)
+                
+            else:
+                # No POS order, use delivery order data
+                receipt_data['name'] = delivery_order.name
+                receipt_data['date'] = delivery_order.create_date.strftime('%Y-%m-%d %H:%M:%S') if delivery_order.create_date else ''
+                receipt_data['cashier'] = delivery_order.create_uid.name if delivery_order.create_uid else ''
+                receipt_data['amount_total'] = delivery_order.order_total or 0
+                
+                # Add partner data from delivery order
+                if delivery_order.partner_id:
+                    receipt_data['partner'] = {
+                        'name': delivery_order.partner_id.name or '',
+                        'street': delivery_order.delivery_address or '',
+                        'street2': '',
+                        'city': '',
+                        'state_id': '',
+                        'zip': '',
+                        'country_id': '',
+                        'phone': delivery_order.delivery_phone or '',
+                        'mobile': '',
+                        'vat': delivery_order.partner_id.vat or '',
+                        'document_type': delivery_order.partner_id.document_type or '',
+                        'document_number': delivery_order.partner_id.document_number or '',
+                    }
+                
+                # For manual delivery orders without POS, we don't have itemized lines
+                # So we'll show a single line with the total
+                if delivery_order.order_total:
+                    receipt_data['orderlines'].append({
+                        'product_name': 'Orden de Domicilio',
+                        'quantity': 1,
+                        'price': delivery_order.order_total,
+                        'price_display': delivery_order.order_total,
+                    })
+            
+            # Render the receipt template
+            return request.render('pos_delivery.pos_receipt_template', {
+                'receipt_data': receipt_data,
+                'pos_order': delivery_order.pos_order_id if delivery_order.pos_order_id else delivery_order,
+            })
+            
+        except Exception as e:
+            _logger.error(f"Delivery receipt view error: {str(e)}")
+            return request.render('pos_delivery.receipt_error', {'error': str(e)})
+
     @http.route('/pos/receipt/html/<int:order_id>', type='http', auth='user', methods=['GET'])
     def view_pos_receipt(self, order_id):
         """Display POS receipt in HTML format"""
@@ -487,7 +616,20 @@ class DeliveryAPI(http.Controller):
                 'paymentlines': [],
                 'order_change': 0,
                 'footer': pos_order.config_id.receipt_footer or '',
+                'delivery_cost': 0,
+                'delivery_payment_method': '',
             }
+            
+            # Get delivery order info if exists
+            delivery_order = request.env['pos.delivery.order'].sudo().search([
+                ('pos_order_id', '=', pos_order.id)
+            ], limit=1)
+            
+            if delivery_order:
+                receipt_data['delivery_cost'] = delivery_order.delivery_cost or 0
+                if delivery_order.delivery_payment_method:
+                    payment_method_dict = dict(delivery_order._fields['delivery_payment_method'].selection)
+                    receipt_data['delivery_payment_method'] = payment_method_dict.get(delivery_order.delivery_payment_method, '')
             
             # Add partner data if exists
             if pos_order.partner_id:

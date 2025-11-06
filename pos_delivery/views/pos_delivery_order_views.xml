@@ -165,7 +165,6 @@
               <!-- View Receipt Button -->
               <button name="action_view_receipt" type="object" 
                       class="oe_stat_button" icon="fa-file-text-o"
-                      invisible="not pos_order_id"
                       title="Ver la tirilla de esta orden">
                 <div class="o_field_widget o_stat_info">
                   <span class="o_stat_text">Ver Tirilla</span>
@@ -222,6 +221,7 @@
                            domain="[('is_delivery_person', '=', True)]"/>
                     <field name="delivery_zone_id"/>
                     <field name="delivery_cost" widget="monetary"/>
+                    <field name="delivery_payment_method"/>
                     <field name="estimated_delivery_time"/>
                   </group>
                 </group>

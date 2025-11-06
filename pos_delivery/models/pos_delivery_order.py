@@ -31,6 +31,10 @@ class PosDeliveryOrder(models.Model):
                                           tracking=True)
     delivery_zone_id = fields.Many2one('delivery.zone', string='Zona de Entrega', tracking=True)
     delivery_cost = fields.Monetary(string='Costo de Envío', currency_field='currency_id', tracking=True)
+    delivery_payment_method = fields.Selection([
+        ('cash', 'Efectivo'),
+        ('transfer', 'Transferencia')
+    ], string='Método de Pago de Envío', tracking=True, help="Método de pago del costo de envío")
     
     # Status and Priority
     state = fields.Selection([
@@ -380,14 +384,12 @@ class PosDeliveryOrder(models.Model):
         """View the POS receipt for this delivery order"""
         self.ensure_one()
         
-        if not self.pos_order_id:
-            raise UserError(_('Esta orden de domicilio no tiene una orden POS asociada.'))
-        
         # Return action to display the receipt in a new window
+        # Now using delivery order ID instead of POS order ID
         return {
             'name': _('Tirilla de la Orden'),
             'type': 'ir.actions.act_url',
-            'url': '/pos/receipt/html/' + str(self.pos_order_id.id),
+            'url': '/pos/delivery/receipt/html/' + str(self.id),
             'target': 'new',
         }
     
