@@ -13,7 +13,7 @@
                                     
                                     <!-- Header -->
                                     <div class="text-center mb-3">
-                                        <h5>Orden #<t t-esc="receipt_data.get('name', '')"/></h5>
+                                        <h4><t t-esc="receipt_data.get('name', '')"/></h4>
                                         <p class="mb-0"><t t-esc="receipt_data.get('date', '')"/></p>
                                         <p class="mb-0" t-if="receipt_data.get('cashier')">
                                             Atendido por: <t t-esc="receipt_data.get('cashier', '')"/>
@@ -138,6 +138,17 @@
                                     </div>
                                     
                                     <hr/>
+                                    
+                                    <!-- General Note -->
+                                    <t t-if="receipt_data.get('general_note')">
+                                        <div class="mb-3">
+                                            <div class="text-center">--------------------------------</div>
+                                            <div class="text-center"><strong>NOTA</strong></div>
+                                            <div class="text-center">--------------------------------</div>
+                                            <p style="white-space: pre-line;"><t t-esc="receipt_data.get('general_note', '')"/></p>
+                                            <div class="text-center">--------------------------------</div>
+                                        </div>
+                                    </t>
                                     
                                     <!-- Footer -->
                                     <div class="text-center">

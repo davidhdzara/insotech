@@ -480,6 +480,7 @@ class DeliveryAPI(http.Controller):
                 'footer': '',
                 'delivery_cost': delivery_order.delivery_cost or 0,
                 'delivery_payment_method': '',
+                'general_note': '',
             }
             
             # Get delivery payment method label
@@ -490,11 +491,20 @@ class DeliveryAPI(http.Controller):
             # If there's a POS order, use its data
             if delivery_order.pos_order_id:
                 pos_order = delivery_order.pos_order_id
-                receipt_data['name'] = pos_order.name
+                
+                # Use tracking_number which is the computed "Order Number" field (e.g. "610")
+                if hasattr(pos_order, 'tracking_number') and pos_order.tracking_number:
+                    receipt_data['name'] = str(pos_order.tracking_number)
+                elif pos_order.pos_reference:
+                    receipt_data['name'] = pos_order.pos_reference
+                else:
+                    receipt_data['name'] = pos_order.name
+                
                 receipt_data['date'] = pos_order.date_order.strftime('%Y-%m-%d %H:%M:%S') if pos_order.date_order else ''
                 receipt_data['cashier'] = pos_order.user_id.name if pos_order.user_id else ''
                 receipt_data['amount_total'] = pos_order.amount_total
                 receipt_data['footer'] = pos_order.config_id.receipt_footer if pos_order.config_id else ''
+                receipt_data['general_note'] = pos_order.general_note or ''
                 
                 # Add partner data from POS order
                 if pos_order.partner_id:

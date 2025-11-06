@@ -14,9 +14,26 @@ class PosDeliveryOrder(models.Model):
     # Basic Information
     name = fields.Char(string='Número de Entrega', required=True, copy=False, readonly=True, 
                        default=lambda self: _('Nuevo'), tracking=True)
+    display_name_with_ticket = fields.Char(string='Número de Orden', compute='_compute_display_name_with_ticket', 
+                                            store=False)
     pos_order_id = fields.Many2one('pos.order', string='Orden POS', required=False, 
                                     ondelete='cascade', tracking=True,
                                     help="Orden POS relacionada (opcional)")
+    
+    @api.depends('pos_order_id', 'pos_order_id.tracking_number', 'pos_order_id.pos_reference', 'name')
+    def _compute_display_name_with_ticket(self):
+        """Display ticket number if POS order exists, otherwise delivery name"""
+        for record in self:
+            if record.pos_order_id:
+                # Use tracking_number which is the "Order Number" field (e.g. "610")
+                if hasattr(record.pos_order_id, 'tracking_number') and record.pos_order_id.tracking_number:
+                    record.display_name_with_ticket = str(record.pos_order_id.tracking_number)
+                elif record.pos_order_id.pos_reference:
+                    record.display_name_with_ticket = record.pos_order_id.pos_reference
+                else:
+                    record.display_name_with_ticket = record.pos_order_id.name
+            else:
+                record.display_name_with_ticket = record.name or 'Nuevo'
     
     # Customer Information
     partner_id = fields.Many2one('res.partner', string='Cliente', required=True, tracking=True)
@@ -91,6 +108,8 @@ class PosDeliveryOrder(models.Model):
     warehouse_notes = fields.Text(string='Notas del Almacén', help="Notas internas del personal del almacén")
     delivery_notes = fields.Text(string='Notas del Repartidor', help="Notas del repartidor")
     customer_notes = fields.Text(string='Notas del Cliente', help="Instrucciones especiales del cliente")
+    pos_general_note = fields.Text(string='Nota General POS', compute='_compute_pos_general_note', 
+                                    help="Nota general de la orden POS")
     
     # Proof of Delivery
     delivery_photo = fields.Binary(string='Foto de Entrega', attachment=True)
@@ -122,6 +141,12 @@ class PosDeliveryOrder(models.Model):
         """Check if the associated POS order has an invoice"""
         for record in self:
             record.has_invoice = bool(record.pos_order_id and record.pos_order_id.account_move)
+    
+    @api.depends('pos_order_id', 'pos_order_id.general_note')
+    def _compute_pos_general_note(self):
+        """Get general note from POS order"""
+        for record in self:
+            record.pos_general_note = record.pos_order_id.general_note if record.pos_order_id else ''
 
     @api.model_create_multi
     def create(self, vals_list):

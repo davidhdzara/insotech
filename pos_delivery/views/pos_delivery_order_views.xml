@@ -8,6 +8,7 @@
       <field name="arch" type="xml">
         <kanban default_group_by="state" class="o_kanban_small_column" quick_create="false">
           <field name="name"/>
+          <field name="display_name_with_ticket"/>
           <field name="partner_id"/>
           <field name="delivery_person_id"/>
           <field name="state"/>
@@ -29,7 +30,7 @@
                   <div class="o_kanban_record_top mb-2">
                     <div class="o_kanban_record_headings">
                       <strong class="o_kanban_record_title">
-                        <field name="name"/>
+                        <field name="display_name_with_ticket"/>
                       </strong>
                       <div class="text-muted">
                         <i class="fa fa-clock-o"/> <field name="time_elapsed"/>
@@ -109,7 +110,7 @@
         <list string="Órdenes de Entrega" decoration-info="state=='pending'" 
               decoration-warning="state=='assigned'" decoration-success="state=='completed'"
               decoration-danger="state=='failed'">
-          <field name="name" string="Número"/>
+          <field name="display_name_with_ticket" string="Número"/>
           <field name="create_date" string="Creado"/>
           <field name="partner_id" string="Cliente"/>
           <field name="delivery_person_id" string="Repartidor"/>
@@ -185,7 +186,7 @@
             <!-- Title -->
             <div class="oe_title">
               <h1>
-                <field name="name" readonly="1"/>
+                <field name="display_name_with_ticket" readonly="1"/>
               </h1>
               <h2>
                 <field name="partner_id" readonly="1" class="text-muted" options="{'no_open': True}"/>
@@ -252,6 +253,13 @@
                     <field name="total_delivery_time" widget="float_time" 
                            invisible="state != 'completed'"/>
                   </group>
+                </group>
+                
+                <!-- POS General Note -->
+                <group>
+                  <field name="pos_general_note" readonly="1" 
+                         invisible="not pos_general_note"
+                         string="Nota General de la Orden"/>
                 </group>
               </page>
 
