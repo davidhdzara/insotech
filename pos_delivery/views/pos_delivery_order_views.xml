@@ -153,24 +153,44 @@
           <sheet>
             <!-- Smart Buttons -->
             <div class="oe_button_box" name="button_box">
-              <button name="action_open_pos_order" type="object" 
+              <!-- View POS Order Button -->
+              <button name="action_view_pos_order" type="object" 
                       class="oe_stat_button" icon="fa-shopping-cart"
                       invisible="not pos_order_id">
                 <div class="o_field_widget o_stat_info">
-                  <span class="o_stat_text">Orden POS</span>
+                  <span class="o_stat_text">Ver Orden POS</span>
                 </div>
               </button>
+              
+              <!-- View Receipt Button -->
+              <button name="action_view_receipt" type="object" 
+                      class="oe_stat_button" icon="fa-file-text-o"
+                      invisible="not pos_order_id"
+                      title="Ver la tirilla de esta orden">
+                <div class="o_field_widget o_stat_info">
+                  <span class="o_stat_text">Ver Tirilla</span>
+                </div>
+              </button>
+              
+              <!-- Stage Times Button -->
               <button name="action_view_stage_times" type="object" 
                       class="oe_stat_button" icon="fa-clock-o">
-                <field name="stage_time_count" widget="statinfo" string="Stage Changes"/>
+                <field name="stage_time_count" widget="statinfo" string="Cambios de Estado"/>
               </button>
             </div>
+            
+            <!-- Hidden field for invoice status -->
+            <!-- Needed for button visibility logic without showing to user -->
+            <field name="has_invoice" invisible="1"/>
 
             <!-- Title -->
             <div class="oe_title">
               <h1>
                 <field name="name" readonly="1"/>
               </h1>
+              <h2>
+                <field name="partner_id" readonly="1" class="text-muted" options="{'no_open': True}"/>
+              </h2>
             </div>
 
             <!-- Priority and Time Info -->
@@ -223,6 +243,7 @@
                            invisible="pos_order_id"
                            placeholder="Ingrese el total manualmente"/>
                     <field name="order_total" widget="monetary" readonly="1"/>
+                    <!-- Hidden: Required by monetary widget for currency symbol -->
                     <field name="currency_id" invisible="1"/>
                   </group>
                   <group string="Fechas">
@@ -280,6 +301,7 @@
                 <group>
                   <group string="Evidencia Fotográfica">
                     <field name="delivery_photo" widget="image" class="oe_avatar"/>
+                    <!-- Hidden: Internal filename, not needed for display -->
                     <field name="delivery_photo_filename" invisible="1"/>
                   </group>
                   <group string="Firma">

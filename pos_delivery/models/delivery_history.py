@@ -41,13 +41,12 @@ class DeliveryHistory(models.Model):
     # Timestamps
     create_date = fields.Datetime(string='Date', readonly=True, default=fields.Datetime.now)
     
-    def name_get(self):
+    @api.depends('delivery_order_id', 'event_type')
+    def _compute_display_name(self):
         """Custom display name"""
-        result = []
         for record in self:
-            name = f"{record.delivery_order_id.name} - {dict(record._fields['event_type'].selection).get(record.event_type)}"
-            result.append((record.id, name))
-        return result
+            event_name = dict(record._fields['event_type'].selection).get(record.event_type)
+            record.display_name = f"{record.delivery_order_id.name} - {event_name}"
 
 
 class PosDeliveryOrderHistory(models.Model):
@@ -84,22 +83,23 @@ class PosDeliveryOrderHistory(models.Model):
         
         self.env['delivery.history'].sudo().create(vals)
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """Log creation in history"""
-        record = super(PosDeliveryOrderHistory, self).create(vals)
-        record._log_history('created', description=_('Delivery order created'))
-        return record
+        records = super(PosDeliveryOrderHistory, self).create(vals_list)
+        for record in records:
+            record._log_history('created', description=_('Delivery order created'))
+        return records
 
     def write(self, vals):
         """Log important changes in history"""
+        result = super(PosDeliveryOrderHistory, self).write(vals)
+        
         for record in self:
             old_state = record.state
             old_priority = record.priority
             old_zone = record.delivery_zone_id.name if record.delivery_zone_id else None
             old_person = record.delivery_person_id.name if record.delivery_person_id else None
-            
-            result = super(PosDeliveryOrderHistory, record).write(vals)
             
             # Log state changes
             if 'state' in vals and vals['state'] != old_state:
@@ -153,8 +153,6 @@ class PosDeliveryOrderHistory(models.Model):
                                    description=_('Warehouse notes added'))
             
             return result
-        
-        return super(PosDeliveryOrderHistory, self).write(vals)
 
     def action_view_history(self):
         """Open history view"""

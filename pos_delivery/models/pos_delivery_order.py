@@ -109,28 +109,40 @@ class PosDeliveryOrder(models.Model):
     # Portal Access
     access_token = fields.Char('Token de Seguridad', copy=False)
 
-    @api.model
-    def create(self, vals):
+    # Invoice Status
+    has_invoice = fields.Boolean(string='Tiene Factura', compute='_compute_has_invoice', 
+                                  help="Indica si la orden POS ya tiene una factura generada")
+
+    @api.depends('pos_order_id', 'pos_order_id.account_move')
+    def _compute_has_invoice(self):
+        """Check if the associated POS order has an invoice"""
+        for record in self:
+            record.has_invoice = bool(record.pos_order_id and record.pos_order_id.account_move)
+
+    @api.model_create_multi
+    def create(self, vals_list):
         """Generate sequence number on creation"""
-        if vals.get('name', _('Nuevo')) == _('Nuevo'):
-            vals['name'] = self.env['ir.sequence'].next_by_code('pos.delivery.order') or _('Nuevo')
-        if not vals.get('access_token'):
-            vals['access_token'] = self._generate_access_token()
+        for vals in vals_list:
+            if vals.get('name', _('Nuevo')) == _('Nuevo'):
+                vals['name'] = self.env['ir.sequence'].next_by_code('pos.delivery.order') or _('Nuevo')
+            if not vals.get('access_token'):
+                vals['access_token'] = self._generate_access_token()
+            
+            # Auto-set delivery cost and estimated time from zone
+            if vals.get('delivery_zone_id'):
+                zone = self.env['delivery.zone'].browse(vals['delivery_zone_id'])
+                if not vals.get('delivery_cost'):
+                    vals['delivery_cost'] = zone.delivery_cost
+                if not vals.get('estimated_delivery_time') and zone.estimated_time:
+                    vals['estimated_delivery_time'] = fields.Datetime.now() + timedelta(minutes=zone.estimated_time)
         
-        # Auto-set delivery cost and estimated time from zone
-        if vals.get('delivery_zone_id'):
-            zone = self.env['delivery.zone'].browse(vals['delivery_zone_id'])
-            if not vals.get('delivery_cost'):
-                vals['delivery_cost'] = zone.delivery_cost
-            if not vals.get('estimated_delivery_time') and zone.estimated_time:
-                vals['estimated_delivery_time'] = fields.Datetime.now() + timedelta(minutes=zone.estimated_time)
+        records = super(PosDeliveryOrder, self).create(vals_list)
         
-        record = super(PosDeliveryOrder, self).create(vals)
+        # Start tracking time in initial state for each record
+        for record, vals in zip(records, vals_list):
+            record._start_stage_timer(vals.get('state', 'pending'))
         
-        # Start tracking time in initial state
-        record._start_stage_timer(vals.get('state', 'pending'))
-        
-        return record
+        return records
 
     @api.depends('state', 'priority')
     def _compute_color(self):
@@ -252,10 +264,10 @@ class PosDeliveryOrder(models.Model):
     def write(self, vals):
         """Auto-update state when delivery person is assigned and track stage changes"""
         # Track state changes for stage timing
+        result = super(PosDeliveryOrder, self).write(vals)
+        
         for record in self:
             old_state = record.state
-            
-            result = super(PosDeliveryOrder, record).write(vals)
             
             # If state changed, update stage timers
             if 'state' in vals and vals['state'] != old_state:
@@ -361,6 +373,39 @@ class PosDeliveryOrder(models.Model):
         """Generate secure token for portal access"""
         import secrets
         return secrets.token_urlsafe(32)
+    
+    # ==================== Receipt Management ====================
+    
+    def action_view_receipt(self):
+        """View the POS receipt for this delivery order"""
+        self.ensure_one()
+        
+        if not self.pos_order_id:
+            raise UserError(_('Esta orden de domicilio no tiene una orden POS asociada.'))
+        
+        # Return action to display the receipt in a new window
+        return {
+            'name': _('Tirilla de la Orden'),
+            'type': 'ir.actions.act_url',
+            'url': '/pos/receipt/html/' + str(self.pos_order_id.id),
+            'target': 'new',
+        }
+    
+    def action_view_pos_order(self):
+        """View the associated POS order"""
+        self.ensure_one()
+        
+        if not self.pos_order_id:
+            raise UserError(_('Esta orden de domicilio no tiene una orden POS asociada.'))
+        
+        return {
+            'name': _('Orden POS'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'pos.order',
+            'res_id': self.pos_order_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
     
     def _start_stage_timer(self, stage):
         """Start timing a new stage"""

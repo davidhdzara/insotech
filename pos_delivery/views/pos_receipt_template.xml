@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- POS Receipt Template for Web View -->
+        <template id="pos_receipt_template" name="POS Receipt HTML">
+            <t t-call="web.html_container">
+                <div class="container mt-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body" style="font-family: 'Courier New', monospace; font-size: 14px;">
+                                    
+                                    <!-- Header - Company Info -->
+                                    <div class="text-center mb-3">
+                                        <h4><t t-esc="receipt_data.get('company', {}).get('name', '')"/></h4>
+                                        <p class="mb-0" t-if="receipt_data.get('company', {}).get('street')">
+                                            <t t-esc="receipt_data['company']['street']"/>
+                                        </p>
+                                        <p class="mb-0" t-if="receipt_data.get('company', {}).get('phone')">
+                                            Tel: <t t-esc="receipt_data['company']['phone']"/>
+                                        </p>
+                                        <p class="mb-0" t-if="receipt_data.get('company', {}).get('email')">
+                                            <t t-esc="receipt_data['company']['email']"/>
+                                        </p>
+                                        <hr/>
+                                        <p class="mb-0">Atendido por: <t t-esc="receipt_data.get('cashier', '')"/></p>
+                                        <h5>Orden #<t t-esc="pos_order.name"/></h5>
+                                        <p class="mb-0"><t t-esc="receipt_data.get('date', '')"/></p>
+                                    </div>
+                                    
+                                    <!-- Customer Information -->
+                                    <t t-if="receipt_data.get('partner')">
+                                        <div class="mb-3">
+                                            <div class="text-center">--------------------------------</div>
+                                            <div class="text-center"><strong>INFORMACIÓN DEL CLIENTE</strong></div>
+                                            <div class="text-center">--------------------------------</div>
+                                            
+                                            <div t-if="receipt_data['partner'].get('name')">
+                                                <strong>Nombre:</strong> <t t-esc="receipt_data['partner']['name']"/>
+                                            </div>
+                                            
+                                            <div t-if="receipt_data['partner'].get('document_type') or receipt_data['partner'].get('document_number')">
+                                                <strong>
+                                                    <t t-if="receipt_data['partner'].get('document_type')">
+                                                        <t t-esc="receipt_data['partner']['document_type']"/>:
+                                                    </t>
+                                                    <t t-else="">Documento:</t>
+                                                </strong>
+                                                <t t-esc="receipt_data['partner'].get('document_number', '')"/>
+                                            </div>
+                                            
+                                            <div t-if="receipt_data['partner'].get('vat')">
+                                                <strong>NIT/VAT:</strong> <t t-esc="receipt_data['partner']['vat']"/>
+                                            </div>
+                                            
+                                            <t t-if="receipt_data['partner'].get('street') or receipt_data['partner'].get('city')">
+                                                <div>
+                                                    <strong>Dirección:</strong><br/>
+                                                    <t t-if="receipt_data['partner'].get('street')">
+                                                        <t t-esc="receipt_data['partner']['street']"/><br/>
+                                                    </t>
+                                                    <t t-if="receipt_data['partner'].get('street2')">
+                                                        <t t-esc="receipt_data['partner']['street2']"/><br/>
+                                                    </t>
+                                                    <t t-if="receipt_data['partner'].get('city')">
+                                                        <t t-esc="receipt_data['partner']['city']"/>
+                                                    </t>
+                                                    <t t-if="receipt_data['partner'].get('state_id')">
+                                                        , <t t-esc="receipt_data['partner']['state_id']"/>
+                                                    </t>
+                                                    <t t-if="receipt_data['partner'].get('zip')">
+                                                        - <t t-esc="receipt_data['partner']['zip']"/>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            
+                                            <div t-if="receipt_data['partner'].get('phone')">
+                                                <strong>Teléfono:</strong> <t t-esc="receipt_data['partner']['phone']"/>
+                                            </div>
+                                            
+                                            <div t-if="receipt_data['partner'].get('mobile')">
+                                                <strong>Celular:</strong> <t t-esc="receipt_data['partner']['mobile']"/>
+                                            </div>
+                                            
+                                            <div class="text-center">--------------------------------</div>
+                                        </div>
+                                    </t>
+                                    
+                                    <!-- Order Lines -->
+                                    <div class="mb-3">
+                                        <t t-foreach="receipt_data.get('orderlines', [])" t-as="line">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <t t-esc="line.get('product_name', '')"/>
+                                                    <br/>
+                                                    <small>
+                                                        <t t-esc="'%.2f' % line.get('quantity', 0)"/> x 
+                                                        $<t t-esc="'{:,.2f}'.format(line.get('price', 0))"/>
+                                                    </small>
+                                                </div>
+                                                <div>
+                                                    $<t t-esc="'{:,.2f}'.format(line.get('price_display', 0))"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    
+                                    <hr/>
+                                    
+                                    <!-- Totals -->
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>TOTAL:</strong>
+                                            <strong>$<t t-esc="'{:,.2f}'.format(receipt_data.get('amount_total', 0))"/></strong>
+                                        </div>
+                                        
+                                        <t t-foreach="receipt_data.get('paymentlines', [])" t-as="payment">
+                                            <div class="d-flex justify-content-between">
+                                                <span><t t-esc="payment.get('name', '')"/></span>
+                                                <span>$<t t-esc="'{:,.2f}'.format(payment.get('amount', 0))"/></span>
+                                            </div>
+                                        </t>
+                                        
+                                        <div class="d-flex justify-content-between" t-if="receipt_data.get('order_change', 0) > 0.01">
+                                            <span>Cambio:</span>
+                                            <span>$<t t-esc="'{:,.2f}'.format(receipt_data.get('order_change', 0))"/></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr/>
+                                    
+                                    <!-- Footer -->
+                                    <div class="text-center">
+                                        <t t-if="receipt_data.get('footer')">
+                                            <p class="mb-2" style="white-space: pre-line;"><t t-esc="receipt_data['footer']"/></p>
+                                        </t>
+                                        <small class="text-muted"><t t-esc="receipt_data.get('date', '')"/></small>
+                                    </div>
+                                    
+                                    <!-- Print Button -->
+                                    <div class="text-center mt-4">
+                                        <button onclick="window.print()" class="btn btn-primary">
+                                            <i class="fa fa-print"/> Imprimir
+                                        </button>
+                                        <button onclick="window.close()" class="btn btn-secondary">
+                                            <i class="fa fa-times"/> Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Receipt Not Found Template -->
+        <template id="receipt_not_found" name="Receipt Not Found">
+            <t t-call="web.html_container">
+                <div class="container mt-5">
+                    <div class="alert alert-danger text-center">
+                        <h4>Recibo no encontrado</h4>
+                        <p>La orden solicitada no existe o no tiene permisos para verla.</p>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Receipt Error Template -->
+        <template id="receipt_error" name="Receipt Error">
+            <t t-call="web.html_container">
+                <div class="container mt-5">
+                    <div class="alert alert-danger text-center">
+                        <h4>Error al generar el recibo</h4>
+                        <p><t t-esc="error"/></p>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+    </data>
+</odoo>
+

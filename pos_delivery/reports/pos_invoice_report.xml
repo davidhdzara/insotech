@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit the original invoice report to add customer details with better formatting -->
+    <template id="report_invoice_document_custom" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-set='address']" position="replace">
+            <t t-set="address">
+                <div t-if="o.partner_id" style="margin-top: 30px;">
+                    <!-- Customer info box with clear visual separation -->
+                    <div style="border: 3px solid #875A7B; padding: 20px; border-radius: 8px; background: linear-gradient(to bottom, #f8f3f9 0%, #ffffff 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <!-- Header -->
+                        <div style="background-color: #875A7B; color: white; padding: 12px; margin: -20px -20px 20px -20px; border-radius: 5px 5px 0 0; text-align: center;">
+                            <strong style="font-size: 18px; letter-spacing: 1px;">📋 INFORMACIÓN DEL CLIENTE</strong>
+                        </div>
+                        
+                        <!-- Customer details in a table-like structure -->
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <!-- Name -->
+                            <tr>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                                    <strong style="color: #875A7B; font-size: 13px;">👤 NOMBRE:</strong>
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                                    <span t-field="o.partner_id.name" style="font-size: 14px; font-weight: 500;"/>
+                                </td>
+                            </tr>
+                            
+                            <!-- Address -->
+                            <tr t-if="o.partner_id.street or o.partner_id.street2 or o.partner_id.city">
+                                <td style="padding: 10px 0; border-bottom: 1px solid #e0e0e0; vertical-align: top;">
+                                    <strong style="color: #875A7B; font-size: 13px;">📍 DIRECCIÓN:</strong>
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                                    <div style="line-height: 1.6;">
+                                        <div t-if="o.partner_id.street" t-field="o.partner_id.street" style="font-size: 13px;"/>
+                                        <div t-if="o.partner_id.street2" t-field="o.partner_id.street2" style="font-size: 13px;"/>
+                                        <div style="font-size: 13px;">
+                                            <span t-if="o.partner_id.city" t-field="o.partner_id.city"/>
+                                            <span t-if="o.partner_id.state_id">, <span t-field="o.partner_id.state_id.name"/></span>
+                                            <span t-if="o.partner_id.zip"> - <span t-field="o.partner_id.zip"/></span>
+                                        </div>
+                                        <div t-if="o.partner_id.country_id" t-field="o.partner_id.country_id.name" style="font-size: 13px; font-weight: 500;"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Phone -->
+                            <tr t-if="o.partner_id.phone or o.partner_id.mobile">
+                                <td style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                                    <strong style="color: #875A7B; font-size: 13px;">📞 TELÉFONO:</strong>
+                                </td>
+                                <td style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                                    <span style="font-size: 13px;">
+                                        <span t-if="o.partner_id.phone" t-field="o.partner_id.phone"/>
+                                        <span t-if="o.partner_id.mobile and not o.partner_id.phone" t-field="o.partner_id.mobile"/>
+                                        <span t-if="o.partner_id.mobile and o.partner_id.phone"> / <span t-field="o.partner_id.mobile"/></span>
+                                    </span>
+                                </td>
+                            </tr>
+                            
+                            <!-- Tax ID -->
+                            <tr t-if="o.partner_id.vat">
+                                <td style="padding: 10px 0;">
+                                    <strong style="color: #875A7B; font-size: 13px;">
+                                        🏢 <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label"/>
+                                        <t t-else="">TAX ID</t>:
+                                    </strong>
+                                </td>
+                                <td style="padding: 10px 0;">
+                                    <span t-field="o.partner_id.vat" style="font-size: 13px; font-weight: 500;"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
+

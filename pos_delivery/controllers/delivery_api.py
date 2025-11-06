@@ -457,3 +457,82 @@ class DeliveryAPI(http.Controller):
                 status=500
             )
 
+    @http.route('/pos/receipt/html/<int:order_id>', type='http', auth='user', methods=['GET'])
+    def view_pos_receipt(self, order_id):
+        """Display POS receipt in HTML format"""
+        try:
+            # Get the POS order
+            pos_order = request.env['pos.order'].browse(order_id)
+            
+            if not pos_order.exists():
+                return request.render('pos_delivery.receipt_not_found')
+            
+            # Get base URL
+            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            
+            # Prepare receipt data manually (similar to what POS does)
+            receipt_data = {
+                'name': pos_order.name,
+                'date': pos_order.date_order.strftime('%Y-%m-%d %H:%M:%S') if pos_order.date_order else '',
+                'cashier': pos_order.user_id.name if pos_order.user_id else '',
+                'company': {
+                    'name': pos_order.company_id.name,
+                    'street': pos_order.company_id.street or '',
+                    'phone': pos_order.company_id.phone or '',
+                    'email': pos_order.company_id.email or '',
+                },
+                'partner': None,
+                'orderlines': [],
+                'amount_total': pos_order.amount_total,
+                'paymentlines': [],
+                'order_change': 0,
+                'footer': pos_order.config_id.receipt_footer or '',
+            }
+            
+            # Add partner data if exists
+            if pos_order.partner_id:
+                receipt_data['partner'] = {
+                    'name': pos_order.partner_id.name or '',
+                    'street': pos_order.partner_id.street or '',
+                    'street2': pos_order.partner_id.street2 or '',
+                    'city': pos_order.partner_id.city or '',
+                    'state_id': pos_order.partner_id.state_id.name if pos_order.partner_id.state_id else '',
+                    'zip': pos_order.partner_id.zip or '',
+                    'country_id': pos_order.partner_id.country_id.name if pos_order.partner_id.country_id else '',
+                    'phone': pos_order.partner_id.phone or '',
+                    'mobile': pos_order.partner_id.mobile or '',
+                    'vat': pos_order.partner_id.vat or '',
+                    'document_type': pos_order.partner_id.document_type or '',
+                    'document_number': pos_order.partner_id.document_number or '',
+                }
+            
+            # Add order lines
+            for line in pos_order.lines:
+                receipt_data['orderlines'].append({
+                    'product_name': line.product_id.display_name,
+                    'quantity': line.qty,
+                    'price': line.price_unit,
+                    'price_display': line.price_subtotal_incl,
+                })
+            
+            # Add payment lines
+            for payment in pos_order.payment_ids:
+                receipt_data['paymentlines'].append({
+                    'name': payment.payment_method_id.name,
+                    'amount': payment.amount,
+                })
+            
+            # Calculate change
+            total_paid = sum(p.amount for p in pos_order.payment_ids)
+            receipt_data['order_change'] = max(0, total_paid - pos_order.amount_total)
+            
+            # Render the receipt template
+            return request.render('pos_delivery.pos_receipt_template', {
+                'receipt_data': receipt_data,
+                'pos_order': pos_order,
+            })
+            
+        except Exception as e:
+            _logger.error(f"Receipt view error: {str(e)}")
+            return request.render('pos_delivery.receipt_error', {'error': str(e)})
+
