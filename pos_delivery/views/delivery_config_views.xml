@@ -38,6 +38,23 @@
             </group>
 
             <group>
+              <group string="🔢 Configuración del Consecutivo">
+                <field name="sequence_prefix" placeholder="ej: #, DEL-, ORD"/>
+                <field name="sequence_padding" placeholder="ej: 1, 3, 5"/>
+                <field name="sequence_next_number" placeholder="ej: 1, 100, 755"/>
+                <div colspan="2" class="alert alert-info" role="alert">
+                  <i class="fa fa-info-circle"/> 
+                  <strong>Ejemplo:</strong> Si configuras Prefijo="#", Dígitos=1, Siguiente=755, 
+                  las órdenes se numerarán como: #755, #756, #757...
+                </div>
+                <button name="action_apply_sequence_config" type="object" 
+                        string="Aplicar Configuración" 
+                        class="btn-primary"
+                        icon="fa-refresh"/>
+              </group>
+            </group>
+
+            <group>
               <group string="🤖 Automatización">
                 <field name="enable_auto_assignment" widget="boolean_toggle"/>
                 <div colspan="2" class="alert alert-info" role="alert"
@@ -58,6 +75,7 @@
             </group>
 
             <group>
+              <!-- Hidden: Required for multi-company support -->
               <field name="company_id" invisible="1"/>
             </group>
           </sheet>
@@ -65,13 +83,13 @@
       </field>
     </record>
 
-    <!-- Configuration Action -->
+    <!-- Configuration Action - Opens the config form -->
     <record id="action_pos_delivery_config" model="ir.actions.act_window">
       <field name="name">Configuración de Entregas</field>
       <field name="res_model">pos.delivery.config</field>
       <field name="view_mode">form</field>
-      <field name="target">inline</field>
-      <field name="context">{'form_view_initial_mode': 'edit'}</field>
+      <field name="view_id" ref="view_pos_delivery_config_form"/>
+      <field name="target">current</field>
     </record>
 
   </data>

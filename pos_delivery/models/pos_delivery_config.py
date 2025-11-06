@@ -50,6 +50,23 @@ class PosDeliveryConfig(models.Model):
         help="Tiempo de entrega estimado predeterminado si no se establece la zona"
     )
     
+    # Sequence Settings
+    sequence_prefix = fields.Char(
+        string='Prefijo del Consecutivo',
+        default='#',
+        help="Prefijo para el número de orden (ej: #, DEL, ORD-)"
+    )
+    sequence_padding = fields.Integer(
+        string='Cantidad de Dígitos',
+        default=1,
+        help="Número de dígitos para el consecutivo (ej: 1=1, 3=001, 5=00001)"
+    )
+    sequence_next_number = fields.Integer(
+        string='Siguiente Número',
+        default=1,
+        help="El próximo número que se asignará a una orden"
+    )
+    
     # Notification Settings
     enable_notifications = fields.Boolean(
         string='Habilitar Notificaciones',
@@ -86,7 +103,66 @@ class PosDeliveryConfig(models.Model):
         config = self.search([], limit=1)
         if not config:
             config = self.create({'name': 'Configuración de Entregas'})
+        
+        # Sync sequence values from actual sequence
+        config._sync_sequence_values()
+        
         return config
+    
+    def _sync_sequence_values(self):
+        """Sync sequence values from ir.sequence to config"""
+        self.ensure_one()
+        
+        sequence = self.env['ir.sequence'].search([('code', '=', 'pos.delivery.order')], limit=1)
+        if sequence:
+            # Only update if values are different to avoid infinite loops
+            if (self.sequence_prefix != sequence.prefix or 
+                self.sequence_padding != sequence.padding or 
+                self.sequence_next_number != sequence.number_next):
+                
+                # Use super().write to avoid triggering the write override
+                super(PosDeliveryConfig, self).write({
+                    'sequence_prefix': sequence.prefix,
+                    'sequence_padding': sequence.padding,
+                    'sequence_next_number': sequence.number_next,
+                })
+    
+    def write(self, vals):
+        """Update sequence when config changes"""
+        result = super(PosDeliveryConfig, self).write(vals)
+        
+        # If sequence settings changed, update the sequence
+        if any(key in vals for key in ['sequence_prefix', 'sequence_padding', 'sequence_next_number']):
+            self._update_delivery_sequence()
+        
+        return result
+    
+    def _update_delivery_sequence(self):
+        """Update the delivery order sequence with current config"""
+        self.ensure_one()
+        
+        sequence = self.env['ir.sequence'].search([('code', '=', 'pos.delivery.order')], limit=1)
+        if sequence:
+            sequence.sudo().write({
+                'prefix': self.sequence_prefix,
+                'padding': self.sequence_padding,
+                'number_next': self.sequence_next_number,
+            })
+    
+    def action_apply_sequence_config(self):
+        """Manually apply sequence configuration"""
+        self.ensure_one()
+        self._update_delivery_sequence()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Configuración Aplicada',
+                'message': 'La configuración del consecutivo se ha actualizado correctamente.',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     def action_show_qr_code(self):
         """Show QR code for app configuration"""

@@ -5,8 +5,9 @@
     <record id="seq_pos_delivery_order" model="ir.sequence">
       <field name="name">POS Delivery Order</field>
       <field name="code">pos.delivery.order</field>
-      <field name="prefix">DEL</field>
-      <field name="padding">5</field>
+      <field name="prefix">#</field>
+      <field name="padding">1</field>
+      <field name="number_next">1</field>
       <field name="company_id" eval="False"/>
     </record>
 

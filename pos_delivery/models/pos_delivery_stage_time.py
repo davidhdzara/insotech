@@ -68,12 +68,11 @@ class PosDeliveryStageTime(models.Model):
                 minutes = int(record.duration)
                 record.duration_display = f"{minutes}m"
     
-    def name_get(self):
+    @api.depends('delivery_order_id', 'stage', 'duration_display')
+    def _compute_display_name(self):
         """Custom display name"""
-        result = []
         for record in self:
             stage_name = dict(record._fields['stage'].selection).get(record.stage)
-            name = f"{record.delivery_order_id.name} - {stage_name} ({record.duration_display})"
-            result.append((record.id, name))
-        return result
+            record.display_name = f"{record.delivery_order_id.name} - {stage_name} ({record.duration_display})"
+
 
