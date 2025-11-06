@@ -33,6 +33,12 @@ patch(PosOrder.prototype, {
             console.log("[POS_DELIVERY] ❌ No partner found for this order");
         }
 
+        // Add general note to the receipt
+        if (this.general_note) {
+            result.general_note = this.general_note;
+            console.log("[POS_DELIVERY] ✅ General note sent to receipt:", result.general_note);
+        }
+
         return result;
     },
 });

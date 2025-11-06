@@ -67,6 +67,21 @@
                 <br/>
             </t>
         </xpath>
+        
+        <!-- Add general note before the footer -->
+        <xpath expr="//div[hasclass('before-footer')]" position="before">
+            <t t-if="props.data.general_note">
+                <br/>
+                <div class="text-center">--------------------------------</div>
+                <div class="text-center fw-bold">NOTA</div>
+                <div class="text-center">--------------------------------</div>
+                <div style="white-space: pre-line;">
+                    <t t-esc="props.data.general_note"/>
+                </div>
+                <div class="text-center">--------------------------------</div>
+                <br/>
+            </t>
+        </xpath>
     </t>
 
 </templates>
