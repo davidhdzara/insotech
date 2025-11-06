@@ -467,30 +467,11 @@ class DeliveryAPI(http.Controller):
             if not delivery_order.exists():
                 return request.render('pos_delivery.receipt_not_found')
             
-            # Get base URL
-            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-            
-            # Get company safely - try multiple sources
-            company = None
-            if hasattr(delivery_order, 'company_id') and delivery_order.company_id:
-                company = delivery_order.company_id
-            elif delivery_order.pos_order_id and delivery_order.pos_order_id.company_id:
-                company = delivery_order.pos_order_id.company_id
-            else:
-                # Fallback to current user's company or main company
-                company = request.env.user.company_id or request.env['res.company'].sudo().search([], limit=1)
-            
-            # Initialize receipt data
+            # Initialize receipt data (without company info to avoid errors)
             receipt_data = {
                 'name': '',
                 'date': '',
                 'cashier': '',
-                'company': {
-                    'name': company.name if company else '',
-                    'street': company.street if company else '',
-                    'phone': company.phone if company else '',
-                    'email': company.email if company else '',
-                },
                 'partner': None,
                 'orderlines': [],
                 'amount_total': 0,
