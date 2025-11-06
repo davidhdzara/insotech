@@ -27,6 +27,7 @@
         'security/pos_delivery_security.xml',
         'security/ir.model.access.csv',
         'data/delivery_zones_data.xml',
+        'reports/pos_invoice_report.xml',
         'views/pos_config_views.xml',
         'views/pos_delivery_order_views.xml',
         'views/pos_delivery_stage_time_views.xml',
@@ -40,6 +41,12 @@
         'views/delivery_app_config_views.xml',
         'views/pos_delivery_menus.xml',  # Load menus LAST, after all actions are defined
     ],
+    'assets': {
+        'point_of_sale.assets_prod': [
+            'pos_delivery/static/src/js/models.js',
+            'pos_delivery/static/src/xml/pos_receipt.xml',
+        ],
+    },
     'external_dependencies': {
         'python': ['qrcode'],
     },

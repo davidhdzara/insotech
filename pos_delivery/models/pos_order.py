@@ -113,6 +113,22 @@ class PosOrder(models.Model):
                 delivery_order = self.env['pos.delivery.order'].create(delivery_vals)
                 order.delivery_order_id = delivery_order.id
                 
+                # Send order to kitchen/printer if pos_restaurant module is installed
+                try:
+                    # Check if the order has lines that need to be sent to kitchen
+                    if order.lines:
+                        # Mark all lines as to be printed in kitchen
+                        order.lines.write({'printer_state': 'pending'})
+                        
+                        # If pos_restaurant is installed, send to kitchen
+                        if hasattr(order, '_send_orders'):
+                            order._send_orders()
+                except Exception as e:
+                    # Log error but don't fail the delivery creation
+                    order.message_post(
+                        body=_("Advertencia: No se pudo enviar a cocina automáticamente. Error: %s") % str(e)
+                    )
+                
                 # Notify
                 order.message_post(
                     body=_("Orden de entrega %s creada automáticamente") % delivery_order.name

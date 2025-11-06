@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="point_of_sale.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <!-- Add customer information before the footer section -->
+        <xpath expr="//div[@class='before-footer']" position="before">
+            <t t-if="props.data.partner and (props.data.partner.name or props.data.partner.street or props.data.partner.phone or props.data.partner.mobile)">
+                <br/>
+                <div class="text-center">--------------------------------</div>
+                <div class="text-center fw-bold">INFORMACIÓN DEL CLIENTE</div>
+                <div class="text-center">--------------------------------</div>
+                
+                <div t-if="props.data.partner.name">
+                    <strong>Nombre:</strong> <t t-esc="props.data.partner.name"/>
+                </div>
+                
+                <t t-if="props.data.partner.street or props.data.partner.street2 or props.data.partner.city">
+                    <div>
+                        <strong>Dirección:</strong><br/>
+                        <t t-if="props.data.partner.street">
+                            <t t-esc="props.data.partner.street"/><br/>
+                        </t>
+                        <t t-if="props.data.partner.street2">
+                            <t t-esc="props.data.partner.street2"/><br/>
+                        </t>
+                        <t t-if="props.data.partner.city">
+                            <t t-esc="props.data.partner.city"/>
+                        </t>
+                        <t t-if="props.data.partner.state_id">
+                            , <t t-esc="props.data.partner.state_id"/>
+                        </t>
+                        <t t-if="props.data.partner.zip">
+                            - <t t-esc="props.data.partner.zip"/>
+                        </t>
+                        <t t-if="props.data.partner.country_id">
+                            <br/><t t-esc="props.data.partner.country_id"/>
+                        </t>
+                    </div>
+                </t>
+                
+                <t t-if="props.data.partner.phone or props.data.partner.mobile">
+                    <div>
+                        <strong>Teléfono:</strong>
+                        <t t-if="props.data.partner.phone">
+                            <t t-esc="props.data.partner.phone"/>
+                        </t>
+                        <t t-if="props.data.partner.mobile and !props.data.partner.phone">
+                            <t t-esc="props.data.partner.mobile"/>
+                        </t>
+                        <t t-if="props.data.partner.mobile and props.data.partner.phone">
+                            / <t t-esc="props.data.partner.mobile"/>
+                        </t>
+                    </div>
+                </t>
+                <div class="text-center">--------------------------------</div>
+                <br/>
+            </t>
+        </xpath>
+    </t>
+
+</templates>
+
