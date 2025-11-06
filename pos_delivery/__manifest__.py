@@ -21,7 +21,7 @@
     'author': "Insotech",
     'website': "http://www.insotech.com",
     'category': 'Point of Sale',
-    'version': '1.0',
+    'version': '1.0.1',
     'depends': ['base', 'point_of_sale', 'portal'],
     'data': [
         'security/pos_delivery_security.xml',
