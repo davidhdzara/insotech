@@ -502,9 +502,14 @@ class DeliveryAPI(http.Controller):
                     receipt_data['name'] = pos_order.name
                 
                 receipt_data['date'] = pos_order.date_order.strftime('%Y-%m-%d %H:%M:%S') if pos_order.date_order else ''
-                # Format creation date for display (already in local timezone from frontend)
+                # Convert UTC to local timezone for display
                 if pos_order.date_order:
-                    receipt_data['creation_date'] = pos_order.date_order.strftime('%d/%m/%Y %I:%M:%S %p')
+                    from odoo.fields import Datetime
+                    # Get user timezone
+                    user_tz = request.env.user.tz or 'America/Bogota'
+                    # Convert from UTC to user timezone
+                    local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), pos_order.date_order)
+                    receipt_data['creation_date'] = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
                 else:
                     receipt_data['creation_date'] = ''
                 receipt_data['cashier'] = pos_order.user_id.name if pos_order.user_id else ''
@@ -554,9 +559,14 @@ class DeliveryAPI(http.Controller):
                 # No POS order, use delivery order data
                 receipt_data['name'] = delivery_order.name
                 receipt_data['date'] = delivery_order.create_date.strftime('%Y-%m-%d %H:%M:%S') if delivery_order.create_date else ''
-                # Format creation date for display
+                # Convert UTC to local timezone for display
                 if delivery_order.create_date:
-                    receipt_data['creation_date'] = delivery_order.create_date.strftime('%d/%m/%Y %I:%M:%S %p')
+                    from odoo.fields import Datetime
+                    # Get user timezone
+                    user_tz = request.env.user.tz or 'America/Bogota'
+                    # Convert from UTC to user timezone
+                    local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), delivery_order.create_date)
+                    receipt_data['creation_date'] = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
                 else:
                     receipt_data['creation_date'] = ''
                 receipt_data['cashier'] = delivery_order.create_uid.name if delivery_order.create_uid else ''
