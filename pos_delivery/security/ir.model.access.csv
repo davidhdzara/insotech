@@ -16,3 +16,6 @@ access_delivery_app_qr_wizard,delivery.app.qr.wizard,model_delivery_app_qr_wizar
 access_pos_delivery_stage_time_user,pos.delivery.stage.time user,model_pos_delivery_stage_time,point_of_sale.group_pos_user,1,0,0,0
 access_pos_delivery_stage_time_manager,pos.delivery.stage.time manager,model_pos_delivery_stage_time,point_of_sale.group_pos_manager,1,1,1,1
 access_pos_delivery_stage_time_portal,pos.delivery.stage.time portal,model_pos_delivery_stage_time,base.group_portal,1,0,0,0
+access_delivery_settlement_report_user,delivery.settlement.report user,model_delivery_settlement_report,point_of_sale.group_pos_user,1,1,1,0
+access_delivery_settlement_report_manager,delivery.settlement.report manager,model_delivery_settlement_report,point_of_sale.group_pos_manager,1,1,1,1
+

@@ -21,6 +21,13 @@
               action="action_delivery_person"
               sequence="20"/>
 
+    <!-- Settlement Menu -->
+    <menuitem id="menu_pos_delivery_settlement"
+              name="Liquidaciones"
+              parent="menu_pos_delivery_root"
+              action="action_delivery_settlement_report"
+              sequence="30"/>
+
     <!-- Configuration Menu -->
     <menuitem id="menu_pos_delivery_config"
               name="Configuración"

@@ -125,6 +125,9 @@
                  decoration-danger="state=='failed'"/>
           <field name="time_elapsed" string="Tiempo"/>
           <field name="order_total" string="Monto" widget="monetary"/>
+          <field name="payment_method_name" string="Método Pago Orden"/>
+          <field name="delivery_cost" string="Costo Domicilio" widget="monetary"/>
+          <field name="delivery_payment_method" string="Método Pago Domicilio"/>
         </list>
       </field>
     </record>
@@ -351,8 +354,8 @@
           <filter string="Prioridad Alta" name="high" domain="[('priority', '=', '2')]"/>
           
           <separator/>
-          <filter string="Hoy" name="today" domain="[('create_date', '&gt;=', datetime.datetime.now().replace(hour=0, minute=0, second=0))]"/>
-          <filter string="Esta Semana" name="week" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+          <filter string="Hoy" name="today" domain="[('create_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+          <filter string="Esta Semana" name="week" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d 00:00:00'))]"/>
           
           <group expand="0" string="Agrupar Por">
             <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>

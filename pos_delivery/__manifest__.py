@@ -39,6 +39,7 @@
         'views/delivery_geolocation_views.xml',
         'views/delivery_config_views.xml',
         'wizard/delivery_app_qr_wizard_views.xml',
+        'wizard/pos_delivery_settlement_wizard_views.xml',
         'views/delivery_app_config_views.xml',
         'views/pos_delivery_menus.xml',  # Load menus LAST, after all actions are defined
     ],

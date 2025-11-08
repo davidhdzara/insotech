@@ -125,6 +125,9 @@ class PosDeliveryOrder(models.Model):
                                    help="Total de la orden (desde POS o manual)")
     order_total_manual = fields.Monetary(string='Total Manual', currency_field='currency_id',
                                          help="Total manual cuando no hay orden POS")
+    payment_method_name = fields.Char(string='Método de Pago', compute='_compute_payment_method_name', 
+                                       store=True, readonly=True,
+                                       help="Método de pago de la orden POS")
     currency_id = fields.Many2one('res.currency', string='Moneda', 
                                    compute='_compute_currency', store=True, readonly=False,
                                    default=lambda self: self.env.company.currency_id)
@@ -150,6 +153,16 @@ class PosDeliveryOrder(models.Model):
         """Get general note from POS order"""
         for record in self:
             record.pos_general_note = record.pos_order_id.general_note if record.pos_order_id else ''
+    
+    @api.depends('pos_order_id', 'pos_order_id.payment_ids', 'pos_order_id.payment_ids.payment_method_id')
+    def _compute_payment_method_name(self):
+        """Get the payment method name from the POS order"""
+        for record in self:
+            if record.pos_order_id and record.pos_order_id.payment_ids:
+                # Get the first payment method (as per user note: orders only have one payment method)
+                record.payment_method_name = record.pos_order_id.payment_ids[0].payment_method_id.name
+            else:
+                record.payment_method_name = False
 
     @api.model_create_multi
     def create(self, vals_list):
