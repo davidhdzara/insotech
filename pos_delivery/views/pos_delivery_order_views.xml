@@ -124,8 +124,8 @@
                  decoration-success="state=='completed'"
                  decoration-danger="state=='failed'"/>
           <field name="time_elapsed" string="Tiempo"/>
-          <field name="order_total" string="Monto" widget="monetary"/>
-          <field name="payment_method_name" string="Método Pago Orden"/>
+          <field name="order_total" string="Costo Total Orden" widget="monetary"/>
+          <field name="payment_method_name" string="Metodo de Pago"/>
           <field name="delivery_cost" string="Costo Domicilio" widget="monetary"/>
           <field name="delivery_payment_method" string="Método Pago Domicilio"/>
         </list>
