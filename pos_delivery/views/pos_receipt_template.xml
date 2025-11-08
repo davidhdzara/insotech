@@ -97,6 +97,10 @@
                                                         <t t-esc="'%.2f' % line.get('quantity', 0)"/> x 
                                                         $<t t-esc="'{:,.2f}'.format(line.get('price', 0))"/>
                                                     </small>
+                                                    <t t-if="line.get('customer_note')">
+                                                        <br/>
+                                                        <small><em><t t-esc="line.get('customer_note', '')"/></em></small>
+                                                    </t>
                                                 </div>
                                                 <div>
                                                     $<t t-esc="'{:,.2f}'.format(line.get('price_display', 0))"/>

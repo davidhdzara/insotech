@@ -532,6 +532,7 @@ class DeliveryAPI(http.Controller):
                         'quantity': line.qty,
                         'price': line.price_unit,
                         'price_display': line.price_subtotal_incl,
+                        'customer_note': line.customer_note if hasattr(line, 'customer_note') else '',
                     })
                 
                 # Add payment lines from POS
