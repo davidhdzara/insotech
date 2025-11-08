@@ -77,12 +77,45 @@
             </t>
         </xpath>
         
-        <!-- Add internal note after customer note in orderlines -->
-        <xpath expr="//OrderWidget/Orderline/li[@t-if='line.customerNote']" position="after">
-            <li t-if="line.internalNote" class="internal-note w-100 p-2 my-1 rounded text-break" style="font-style: italic; background-color: #f0f0f0;">
-                <i class="fa fa-file-text-o me-1" role="img" aria-label="Internal Note" title="Internal Note"/>
-                <t t-esc="line.internalNote" />
-            </li>
+        <!-- Replace OrderWidget completely to show internal notes -->
+        <xpath expr="//OrderWidget" position="replace">
+            <div class="orderlines" t-if="props.data.orderlines?.length">
+                <t t-foreach="props.data.orderlines" t-as="line" t-key="line_index">
+                    <div class="orderline">
+                        <!-- Product info -->
+                        <div class="d-flex justify-content-between">
+                            <div class="flex-fill">
+                                <t t-esc="line.productName"/>
+                            </div>
+                            <div class="text-end">
+                                <t t-esc="line.price"/>
+                            </div>
+                        </div>
+                        
+                        <!-- Quantity and unit price -->
+                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.9em;">
+                            <div>
+                                <t t-esc="line.qty"/> x <t t-esc="line.unitPrice"/>
+                                <t t-if="line.discount">
+                                    (Desc: <t t-esc="line.discount"/>)
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <!-- Customer Note -->
+                        <div t-if="line.customerNote" class="customer-note p-2 my-1 rounded text-break" style="background-color: #fff3cd; font-size: 0.9em;">
+                            <i class="fa fa-sticky-note me-1"/>
+                            <em><t t-esc="line.customerNote"/></em>
+                        </div>
+                        
+                        <!-- Internal Note -->
+                        <div t-if="line.internalNote" class="internal-note p-2 my-1 rounded text-break" style="background-color: #f0f0f0; font-size: 0.9em;">
+                            <i class="fa fa-file-text-o me-1"/>
+                            <em><t t-esc="line.internalNote"/></em>
+                        </div>
+                    </div>
+                </t>
+            </div>
         </xpath>
     </t>
 
