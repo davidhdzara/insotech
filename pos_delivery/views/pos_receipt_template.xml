@@ -20,12 +20,10 @@
                                     </div>
                                     
                                     <!-- Order Creation Date/Time -->
-                                    <t t-if="receipt_data.get('creation_date')">
-                                        <div class="text-center mb-3" style="font-size: 1.1em;">
-                                            <strong>Fecha y Hora:</strong><br/>
-                                            <strong style="font-size: 1.2em;"><t t-esc="receipt_data.get('creation_date', '')"/></strong>
-                                        </div>
-                                    </t>
+                                    <div class="text-center mb-3" style="font-size: 1.1em;" t-if="receipt_data['creation_date']">
+                                        <strong>Fecha y Hora:</strong><br/>
+                                        <strong style="font-size: 1.2em;"><t t-esc="receipt_data['creation_date']"/></strong>
+                                    </div>
                                     
                                     <!-- Customer Information -->
                                     <t t-if="receipt_data.get('partner')">
