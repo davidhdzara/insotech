@@ -33,25 +33,29 @@ patch(PosOrder.prototype, {
             console.log("[POS_DELIVERY] ❌ No partner found for this order");
         }
 
-        // Add general note to the receipt
+        // Add general note to the receipt (preserve existing generalNote from parent)
         if (this.general_note) {
-            result.general_note = this.general_note;
-            console.log("[POS_DELIVERY] ✅ General note sent to receipt:", result.general_note);
+            result.generalNote = this.general_note;
+            console.log("[POS_DELIVERY] ✅ General note sent to receipt:", result.generalNote);
         }
 
         // Add creation date/time to the receipt using date_order
         if (this.date_order) {
-            const date = new Date(this.date_order);
-            result.creation_date = date.toLocaleString('es-CO', { 
+            // date_order is a string like "2025-11-08 03:43:39" in UTC
+            // Need to parse it and adjust for timezone offset
+            const utcDate = new Date(this.date_order + ' UTC'); // Parse as UTC
+            result.creation_date = utcDate.toLocaleString('es-CO', { 
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-                hour12: true
+                hour12: true,
+                timeZone: 'America/Bogota'
             });
             console.log("[POS_DELIVERY] ✅ Creation date sent to receipt:", result.creation_date);
+            console.log("[POS_DELIVERY] 🔍 Original date_order:", this.date_order);
         }
 
         // Add internal notes to each orderline

@@ -14,7 +14,6 @@
                                     <!-- Header -->
                                     <div class="text-center mb-3">
                                         <h4><t t-esc="receipt_data.get('name', '')"/></h4>
-                                        <p class="mb-0"><t t-esc="receipt_data.get('date', '')"/></p>
                                         <p class="mb-0" t-if="receipt_data.get('cashier')">
                                             Atendido por: <t t-esc="receipt_data.get('cashier', '')"/>
                                         </p>
