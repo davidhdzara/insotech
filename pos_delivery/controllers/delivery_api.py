@@ -229,19 +229,33 @@ class DeliveryAPI(http.Controller):
             
             orders_data = []
             for order in orders:
+                from odoo.fields import Datetime
+                # Get user timezone
+                user_tz = request.env.user.tz or 'America/Bogota'
+                
                 # Get POS order creation date with timezone conversion
                 pos_creation_date = None
                 if order.pos_order_id and order.pos_order_id.date_order:
-                    from odoo.fields import Datetime
-                    # Get user timezone
-                    user_tz = request.env.user.tz or 'America/Bogota'
                     # Convert from UTC to user timezone
                     local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), order.pos_order_id.date_order)
                     pos_creation_date = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
                 
+                # Convert create_date to local timezone for accurate time calculations
+                local_create_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), order.create_date)
+                
+                # Get display name (tracking number if POS order exists, otherwise delivery name)
+                display_name = order.name
+                if order.pos_order_id:
+                    if hasattr(order.pos_order_id, 'tracking_number') and order.pos_order_id.tracking_number:
+                        display_name = str(order.pos_order_id.tracking_number)
+                    elif order.pos_order_id.pos_reference:
+                        display_name = order.pos_order_id.pos_reference
+                    else:
+                        display_name = order.pos_order_id.name
+                
                 orders_data.append({
                     'id': order.id,
-                    'name': order.name,
+                    'name': display_name,
                     'pos_order_name': order.pos_order_id.name if order.pos_order_id else '',
                     'customer_name': order.partner_id.name if order.partner_id else 'Cliente',
                     'customer_phone': order.delivery_phone,
@@ -254,10 +268,10 @@ class DeliveryAPI(http.Controller):
                      'delivery_instructions': order.customer_notes or '',
                      'warehouse_comment': order.warehouse_notes or '',
                      'delivery_person_comment': order.delivery_notes or '',
-                     'order_total': float(order.order_total) if order.order_total else 0.0,
+                     'amount_total': float(order.order_total) if order.order_total else 0.0,
                      'delivery_cost': float(order.delivery_cost) if order.delivery_cost else 0.0,
                      'currency_symbol': order.currency_id.symbol if order.currency_id else '$',
-                     'create_date': order.create_date.isoformat(),
+                     'create_date': local_create_dt.isoformat(),
                      'pos_creation_date': pos_creation_date,
                      'assigned_at': order.assigned_date.isoformat() if order.assigned_date else None,
                      'in_transit_at': order.in_transit_date.isoformat() if order.in_transit_date else None
@@ -324,9 +338,24 @@ class DeliveryAPI(http.Controller):
                 local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), order.pos_order_id.date_order)
                 pos_creation_date = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
             
+            # Get display name (tracking number if POS order exists, otherwise delivery name)
+            display_name = order.name
+            general_note = None
+            if order.pos_order_id:
+                if hasattr(order.pos_order_id, 'tracking_number') and order.pos_order_id.tracking_number:
+                    display_name = str(order.pos_order_id.tracking_number)
+                elif order.pos_order_id.pos_reference:
+                    display_name = order.pos_order_id.pos_reference
+                else:
+                    display_name = order.pos_order_id.name
+                
+                # Get general note from POS order
+                if hasattr(order.pos_order_id, 'general_note'):
+                    general_note = order.pos_order_id.general_note or None
+            
             order_data = {
                 'id': order.id,
-                'name': order.name,
+                'name': display_name,
                 'pos_order_name': order.pos_order_id.name if order.pos_order_id else '',
                 'customer_name': order.partner_id.name if order.partner_id else 'Cliente',
                 'customer_phone': order.delivery_phone,
@@ -339,7 +368,8 @@ class DeliveryAPI(http.Controller):
                  'delivery_instructions': order.customer_notes or '',
                  'warehouse_comment': order.warehouse_notes or '',
                  'delivery_person_comment': order.delivery_notes or '',
-                 'order_total': float(order.order_total) if order.order_total else 0.0,
+                 'general_note': general_note,
+                 'amount_total': float(order.order_total) if order.order_total else 0.0,
                  'delivery_cost': float(order.delivery_cost) if order.delivery_cost else 0.0,
                  'total_amount': float(order.order_total + order.delivery_cost) if (order.order_total or order.delivery_cost) else 0.0,
                  'currency_symbol': order.currency_id.symbol if order.currency_id else '$',
@@ -401,11 +431,38 @@ class DeliveryAPI(http.Controller):
                 order.action_complete()
                 message = 'Entrega completada exitosamente'
                 
+            elif action == 'fail_delivery':
+                if order.state != 'in_transit':
+                    return self._json_response(error='Solo puedes marcar como fallido pedidos en tránsito', status=400)
+                
+                # Mark as failed and add comment with reason
+                order.write({'state': 'failed'})
+                
+                if comment:
+                    order.message_post(
+                        body=f'Entrega marcada como fallida. Motivo: {comment}',
+                        subject=f'Entrega Fallida - {delivery_person.name}',
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_note',
+                        author_id=delivery_person.id
+                    )
+                
+                message = 'Entrega marcada como fallida'
+                
             elif action == 'add_comment':
                 if not comment:
                     return self._json_response(error='El comentario no puede estar vacío', status=400)
                 
-                # Add comment to chatter
+                # Update delivery_notes field (append to existing notes)
+                existing_notes = order.delivery_notes or ''
+                if existing_notes:
+                    new_notes = f"{existing_notes}\n\n{comment}"
+                else:
+                    new_notes = comment
+                
+                order.write({'delivery_notes': new_notes})
+                
+                # Also add comment to chatter for history
                 order.message_post(
                     body=comment,
                     subject=f'Comentario del Repartidor: {delivery_person.name}',

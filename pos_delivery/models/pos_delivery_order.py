@@ -9,7 +9,7 @@ class PosDeliveryOrder(models.Model):
     _name = 'pos.delivery.order'
     _description = 'Orden de Entrega POS'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'create_date desc, priority desc'
+    _order = 'state_sequence, priority desc, create_date desc'
 
     # Basic Information
     name = fields.Char(string='Número de Entrega', required=True, copy=False, readonly=True, 
@@ -54,6 +54,7 @@ class PosDeliveryOrder(models.Model):
     ], string='Método de Pago Envío', tracking=True, help="Método de pago del costo de envío")
     
     # Status and Priority
+    # Order in Selection defines kanban column order
     state = fields.Selection([
         ('pending', 'Pendiente'),
         ('assigned', 'Asignado'),
@@ -61,6 +62,8 @@ class PosDeliveryOrder(models.Model):
         ('completed', 'Completado'),
         ('failed', 'Fallido')
     ], string='Estado', default='pending', required=True, tracking=True)
+    
+    state_sequence = fields.Integer(string='Secuencia de Estado', compute='_compute_state_sequence', store=True)
     
     priority = fields.Selection([
         ('0', 'Baja'),
@@ -187,6 +190,19 @@ class PosDeliveryOrder(models.Model):
                 record.color = 8   # Yellow (high)
             else:
                 record.color = 0   # Default
+    
+    @api.depends('state')
+    def _compute_state_sequence(self):
+        """Compute sequence number for state ordering in kanban"""
+        state_order = {
+            'pending': 1,
+            'assigned': 2,
+            'in_transit': 3,
+            'completed': 4,
+            'failed': 5,
+        }
+        for record in self:
+            record.state_sequence = state_order.get(record.state, 999)
     
     @api.depends('pos_order_id', 'pos_order_id.amount_total', 'order_total_manual')
     def _compute_order_total(self):

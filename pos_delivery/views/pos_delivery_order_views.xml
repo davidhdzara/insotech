@@ -6,12 +6,13 @@
       <field name="name">pos.delivery.order.kanban</field>
       <field name="model">pos.delivery.order</field>
       <field name="arch" type="xml">
-        <kanban default_group_by="state" class="o_kanban_small_column" quick_create="false">
+        <kanban default_group_by="state" default_order="state_sequence, priority desc, create_date desc" class="o_kanban_small_column" quick_create="false" group_create="false">
           <field name="name"/>
           <field name="display_name_with_ticket"/>
           <field name="partner_id"/>
           <field name="delivery_person_id"/>
           <field name="state"/>
+          <field name="state_sequence"/>
           <field name="priority"/>
           <field name="color"/>
           <field name="time_elapsed"/>
