@@ -39,29 +39,29 @@ patch(PosOrder.prototype, {
             console.log("[POS_DELIVERY] ✅ General note sent to receipt:", result.general_note);
         }
 
-        // Add creation date/time to the receipt
-        if (this.creation_date) {
-            const date = new Date(this.creation_date);
+        // Add creation date/time to the receipt using date_order
+        if (this.date_order) {
+            const date = new Date(this.date_order);
             result.creation_date = date.toLocaleString('es-CO', { 
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit'
+                second: '2-digit',
+                hour12: true
             });
             console.log("[POS_DELIVERY] ✅ Creation date sent to receipt:", result.creation_date);
         }
 
-        // Debug: Check if orderlines have customerNote
-        console.log("[POS_DELIVERY] 🔍 Orderlines in receipt:", result.orderlines);
-        if (result.orderlines && result.orderlines.length > 0) {
-            result.orderlines.forEach((line, index) => {
-                console.log(`[POS_DELIVERY] Line ${index}:`, {
-                    product: line.product_name || line.productName,
-                    customerNote: line.customerNote,
-                    note: line.note
-                });
+        // Add internal notes to each orderline
+        if (result.orderlines && this.lines) {
+            result.orderlines.forEach((orderline, index) => {
+                const posLine = this.lines[index];
+                if (posLine && posLine.note) {
+                    orderline.internalNote = posLine.note;
+                    console.log(`[POS_DELIVERY] ✅ Added internal note to line ${index}:`, posLine.note);
+                }
             });
         }
 

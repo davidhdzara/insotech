@@ -78,14 +78,6 @@
                                         </div>
                                     </t>
                                     
-                                    <!-- Order Creation Date/Time -->
-                                    <t t-if="receipt_data.get('creation_date')">
-                                        <div class="mb-3 text-center">
-                                            <strong>Fecha y Hora:</strong><br/>
-                                            <t t-esc="receipt_data.get('creation_date', '')"/>
-                                        </div>
-                                    </t>
-                                    
                                     <!-- Order Lines -->
                                     <div class="mb-3">
                                         <t t-foreach="receipt_data.get('orderlines', [])" t-as="line">
