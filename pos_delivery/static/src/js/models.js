@@ -53,6 +53,18 @@ patch(PosOrder.prototype, {
             console.log("[POS_DELIVERY] ✅ Creation date sent to receipt:", result.creation_date);
         }
 
+        // Debug: Check if orderlines have customerNote
+        console.log("[POS_DELIVERY] 🔍 Orderlines in receipt:", result.orderlines);
+        if (result.orderlines && result.orderlines.length > 0) {
+            result.orderlines.forEach((line, index) => {
+                console.log(`[POS_DELIVERY] Line ${index}:`, {
+                    product: line.product_name || line.productName,
+                    customerNote: line.customerNote,
+                    note: line.note
+                });
+            });
+        }
+
         return result;
     },
 });
