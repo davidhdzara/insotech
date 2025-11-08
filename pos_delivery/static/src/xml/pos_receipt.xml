@@ -120,6 +120,18 @@
                         </div>
                     </div>
                 </t>
+                
+                <!-- General Note (from OrderWidget) -->
+                <t t-if="props.data.generalNote">
+                    <div class="general-note p-2 my-3 rounded text-break text-center" style="background-color: #e7f3ff; border: 1px solid #90caf9;">
+                        <div class="text-center fw-bold mb-1">NOTA</div>
+                        <div class="text-center">--------------------------------</div>
+                        <div style="white-space: pre-line;" class="mt-2">
+                            <t t-esc="props.data.generalNote"/>
+                        </div>
+                        <div class="text-center">--------------------------------</div>
+                    </div>
+                </t>
             </div>
         </xpath>
     </t>
