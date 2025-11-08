@@ -510,6 +510,7 @@ class DeliveryAPI(http.Controller):
                     # Convert from UTC to user timezone
                     local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), pos_order.date_order)
                     receipt_data['creation_date'] = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
+                    _logger.info(f"[DELIVERY RECEIPT] Order {pos_order.name} - UTC: {pos_order.date_order}, Local: {receipt_data['creation_date']}")
                 else:
                     receipt_data['creation_date'] = ''
                 receipt_data['cashier'] = pos_order.user_id.name if pos_order.user_id else ''
