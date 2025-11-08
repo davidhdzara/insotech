@@ -20,9 +20,19 @@
                                     </div>
                                     
                                     <!-- Order Creation Date/Time -->
-                                    <div class="text-center mb-3" style="font-size: 1.1em;" t-if="receipt_data['creation_date']">
-                                        <strong>Fecha y Hora:</strong><br/>
-                                        <strong style="font-size: 1.2em;"><t t-esc="receipt_data['creation_date']"/></strong>
+                                    <t t-if="receipt_data.get('creation_date')">
+                                        <div class="text-center mb-3" style="font-size: 1.1em;">
+                                            <strong>Fecha y Hora:</strong><br/>
+                                            <strong style="font-size: 1.2em;"><t t-esc="receipt_data['creation_date']"/></strong>
+                                        </div>
+                                    </t>
+                                    
+                                    <!-- DEBUG: Show all receipt_data keys -->
+                                    <div class="text-center mb-3" style="color: red; font-size: 0.8em;">
+                                        DEBUG - Keys: <t t-esc="', '.join(receipt_data.keys())"/>
+                                    </div>
+                                    <div class="text-center mb-3" style="color: blue; font-size: 0.8em;">
+                                        DEBUG - creation_date value: [<t t-esc="receipt_data.get('creation_date', 'NOT FOUND')"/>]
                                     </div>
                                     
                                     <!-- Customer Information -->
