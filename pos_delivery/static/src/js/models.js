@@ -39,6 +39,20 @@ patch(PosOrder.prototype, {
             console.log("[POS_DELIVERY] ✅ General note sent to receipt:", result.general_note);
         }
 
+        // Add creation date/time to the receipt
+        if (this.creation_date) {
+            const date = new Date(this.creation_date);
+            result.creation_date = date.toLocaleString('es-CO', { 
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            console.log("[POS_DELIVERY] ✅ Creation date sent to receipt:", result.creation_date);
+        }
+
         return result;
     },
 });

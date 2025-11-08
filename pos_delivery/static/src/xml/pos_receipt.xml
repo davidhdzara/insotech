@@ -66,6 +66,15 @@
                 <div class="text-center">--------------------------------</div>
                 <br/>
             </t>
+            
+            <!-- Add order creation date/time -->
+            <t t-if="props.data.creation_date">
+                <div class="text-center mb-2">
+                    <strong>Fecha y Hora:</strong><br/>
+                    <t t-esc="props.data.creation_date"/>
+                </div>
+                <br/>
+            </t>
         </xpath>
         
         <!-- Add general note before the footer -->

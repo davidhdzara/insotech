@@ -471,6 +471,7 @@ class DeliveryAPI(http.Controller):
             receipt_data = {
                 'name': '',
                 'date': '',
+                'creation_date': '',
                 'cashier': '',
                 'partner': None,
                 'orderlines': [],
@@ -501,6 +502,7 @@ class DeliveryAPI(http.Controller):
                     receipt_data['name'] = pos_order.name
                 
                 receipt_data['date'] = pos_order.date_order.strftime('%Y-%m-%d %H:%M:%S') if pos_order.date_order else ''
+                receipt_data['creation_date'] = pos_order.date_order.strftime('%d/%m/%Y %I:%M:%S %p') if pos_order.date_order else ''
                 receipt_data['cashier'] = pos_order.user_id.name if pos_order.user_id else ''
                 receipt_data['amount_total'] = pos_order.amount_total
                 receipt_data['footer'] = pos_order.config_id.receipt_footer if pos_order.config_id else ''
@@ -547,6 +549,7 @@ class DeliveryAPI(http.Controller):
                 # No POS order, use delivery order data
                 receipt_data['name'] = delivery_order.name
                 receipt_data['date'] = delivery_order.create_date.strftime('%Y-%m-%d %H:%M:%S') if delivery_order.create_date else ''
+                receipt_data['creation_date'] = delivery_order.create_date.strftime('%d/%m/%Y %I:%M:%S %p') if delivery_order.create_date else ''
                 receipt_data['cashier'] = delivery_order.create_uid.name if delivery_order.create_uid else ''
                 receipt_data['amount_total'] = delivery_order.order_total or 0
                 
