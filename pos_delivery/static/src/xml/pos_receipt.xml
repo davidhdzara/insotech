@@ -4,6 +4,16 @@
     <t t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
         <!-- Add customer information after the header and before the products -->
         <xpath expr="//ReceiptHeader" position="after">
+            <!-- Add order creation date/time FIRST -->
+            <t t-if="props.data.creation_date">
+                <br/>
+                <div class="text-center" style="font-size: 1.1em;">
+                    <strong>Fecha y Hora:</strong><br/>
+                    <strong style="font-size: 1.2em;"><t t-esc="props.data.creation_date"/></strong>
+                </div>
+                <br/>
+            </t>
+            
             <t t-if="props.data.partner and (props.data.partner.name or props.data.partner.street or props.data.partner.phone or props.data.partner.mobile)">
                 <br/>
                 <div class="text-center">--------------------------------</div>
@@ -66,15 +76,6 @@
                 <div class="text-center">--------------------------------</div>
                 <br/>
             </t>
-            
-            <!-- Add order creation date/time -->
-            <t t-if="props.data.creation_date">
-                <div class="text-center mb-2">
-                    <strong>Fecha y Hora:</strong><br/>
-                    <t t-esc="props.data.creation_date"/>
-                </div>
-                <br/>
-            </t>
         </xpath>
         
         <!-- Replace OrderWidget completely to show internal notes -->
@@ -82,19 +83,6 @@
             <div class="orderlines" t-if="props.data.orderlines?.length">
                 <t t-foreach="props.data.orderlines" t-as="line" t-key="line_index">
                     <div class="orderline">
-                        <!-- DEBUG: Show all line data -->
-                        <div style="background: yellow; font-size: 10px; border: 1px solid red; padding: 5px; margin: 5px 0;">
-                            DEBUG Line <t t-esc="line_index"/>:<br/>
-                            productName: <t t-esc="line.productName"/><br/>
-                            price: <t t-esc="line.price"/><br/>
-                            qty: <t t-esc="line.qty"/><br/>
-                            unitPrice: <t t-esc="line.unitPrice"/><br/>
-                            customerNote: <t t-esc="line.customerNote || 'EMPTY'"/><br/>
-                            internalNote: <t t-esc="line.internalNote || 'EMPTY'"/><br/>
-                            unit: <t t-esc="line.unit || 'N/A'"/><br/>
-                            discount: <t t-esc="line.discount || 'N/A'"/>
-                        </div>
-                        
                         <!-- Product info -->
                         <div class="d-flex justify-content-between">
                             <div class="flex-fill">
