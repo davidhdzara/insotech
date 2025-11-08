@@ -77,10 +77,10 @@
             </t>
         </xpath>
         
-        <!-- Add internal note to orderlines (after customer note) -->
-        <xpath expr="//Orderline/li[@t-if='line.customerNote']" position="after">
-            <li t-if="line.internalNote" class="internal-note w-100 p-2 my-1 rounded text-break" style="font-style: italic; opacity: 0.8;">
-                <i class="fa fa-sticky-note me-1" role="img" aria-label="Internal Note" title="Internal Note"/>
+        <!-- Add internal note after customer note in orderlines -->
+        <xpath expr="//OrderWidget/Orderline/li[@t-if='line.customerNote']" position="after">
+            <li t-if="line.internalNote" class="internal-note w-100 p-2 my-1 rounded text-break" style="font-style: italic; background-color: #f0f0f0;">
+                <i class="fa fa-file-text-o me-1" role="img" aria-label="Internal Note" title="Internal Note"/>
                 <t t-esc="line.internalNote" />
             </li>
         </xpath>
