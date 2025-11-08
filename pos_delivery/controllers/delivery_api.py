@@ -229,6 +229,16 @@ class DeliveryAPI(http.Controller):
             
             orders_data = []
             for order in orders:
+                # Get POS order creation date with timezone conversion
+                pos_creation_date = None
+                if order.pos_order_id and order.pos_order_id.date_order:
+                    from odoo.fields import Datetime
+                    # Get user timezone
+                    user_tz = request.env.user.tz or 'America/Bogota'
+                    # Convert from UTC to user timezone
+                    local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), order.pos_order_id.date_order)
+                    pos_creation_date = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
+                
                 orders_data.append({
                     'id': order.id,
                     'name': order.name,
@@ -248,6 +258,7 @@ class DeliveryAPI(http.Controller):
                      'delivery_cost': float(order.delivery_cost) if order.delivery_cost else 0.0,
                      'currency_symbol': order.currency_id.symbol if order.currency_id else '$',
                      'create_date': order.create_date.isoformat(),
+                     'pos_creation_date': pos_creation_date,
                      'assigned_at': order.assigned_date.isoformat() if order.assigned_date else None,
                      'in_transit_at': order.in_transit_date.isoformat() if order.in_transit_date else None
                 })
@@ -303,6 +314,16 @@ class DeliveryAPI(http.Controller):
                         'subject': message.subject or ''
                     })
             
+            # Get POS order creation date with timezone conversion
+            pos_creation_date = None
+            if order.pos_order_id and order.pos_order_id.date_order:
+                from odoo.fields import Datetime
+                # Get user timezone
+                user_tz = request.env.user.tz or 'America/Bogota'
+                # Convert from UTC to user timezone
+                local_dt = Datetime.context_timestamp(request.env.user.with_context(tz=user_tz), order.pos_order_id.date_order)
+                pos_creation_date = local_dt.strftime('%d/%m/%Y, %I:%M:%S %p')
+            
             order_data = {
                 'id': order.id,
                 'name': order.name,
@@ -325,6 +346,7 @@ class DeliveryAPI(http.Controller):
                  'order_lines': order_lines,
                  'messages': messages,
                  'create_date': order.create_date.isoformat(),
+                 'pos_creation_date': pos_creation_date,
                  'assigned_at': order.assigned_date.isoformat() if order.assigned_date else None,
                  'in_transit_at': order.in_transit_date.isoformat() if order.in_transit_date else None,
                  'delivered_at': order.completed_date.isoformat() if order.completed_date else None,
